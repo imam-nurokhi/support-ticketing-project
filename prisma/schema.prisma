@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  role      String   @default("CUSTOMER")
+  createdAt DateTime @default(now())
+  tickets        Ticket[]       @relation("TicketAuthor")
+  assignedTickets Ticket[]      @relation("TicketAssignee")
+  comments  TicketComment[]
+  auditLogs AuditLog[]
+}
+
+model Ticket {
+  id          String   @id @default(cuid())
+  ticketId    String   @unique @default(cuid())
+  title       String
+  description String
+  status      String   @default("OPEN")
+  priority    String   @default("MEDIUM")
+  department  String
+  authorId    String
+  assigneeId  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  author      User     @relation("TicketAuthor", fields: [authorId], references: [id])
+  assignee    User?    @relation("TicketAssignee", fields: [assigneeId], references: [id])
+  comments    TicketComment[]
+  auditLogs   AuditLog[]
+}
+
+model TicketComment {
+  id             String   @id @default(cuid())
+  ticketId       String
+  authorId       String
+  message        String
+  isInternalNote Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  ticket         Ticket   @relation(fields: [ticketId], references: [id])
+  author         User     @relation(fields: [authorId], references: [id])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  ticketId  String
+  userId    String
+  action    String
+  oldValue  String?
+  newValue  String?
+  createdAt DateTime @default(now())
+  ticket    Ticket   @relation(fields: [ticketId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+}
