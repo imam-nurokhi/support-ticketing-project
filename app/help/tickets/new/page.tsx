@@ -5,17 +5,17 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, ArrowRight, Check, Settings, CreditCard, MessageCircle, FileText, Headphones, AlertCircle, TrendingUp, Minus, Zap } from 'lucide-react';
 
 const departments = [
-  { id: 'Technical', label: 'Technical Support', desc: 'Bugs, errors, integrations, account access', icon: Settings, color: 'blue' },
-  { id: 'Billing', label: 'Billing & Payments', desc: 'Invoices, charges, refunds, subscriptions', icon: CreditCard, color: 'green' },
-  { id: 'General', label: 'General Inquiry', desc: 'General questions about our products', icon: MessageCircle, color: 'purple' },
-  { id: 'Sales', label: 'Sales', desc: 'Pricing, enterprise plans, partnerships', icon: FileText, color: 'amber' },
+  { id: 'Technical', label: 'Technical Support', desc: 'Bugs, errors, integrations, account access', icon: Settings, iconClass: 'text-blue-600' },
+  { id: 'Billing', label: 'Billing & Payments', desc: 'Invoices, charges, refunds, subscriptions', icon: CreditCard, iconClass: 'text-green-600' },
+  { id: 'General', label: 'General Inquiry', desc: 'General questions about our products', icon: MessageCircle, iconClass: 'text-purple-600' },
+  { id: 'Sales', label: 'Sales', desc: 'Pricing, enterprise plans, partnerships', icon: FileText, iconClass: 'text-amber-600' },
 ];
 
 const priorities = [
-  { id: 'LOW', label: 'Low', desc: 'General questions, no urgency', icon: Minus, color: 'slate' },
-  { id: 'MEDIUM', label: 'Medium', desc: 'Affecting my work but I have a workaround', icon: TrendingUp, color: 'blue' },
-  { id: 'HIGH', label: 'High', desc: 'Significantly impacting my work', icon: AlertCircle, color: 'orange' },
-  { id: 'URGENT', label: 'Urgent', desc: 'Complete blocker, business critical', icon: Zap, color: 'red' },
+  { id: 'LOW', label: 'Low', desc: 'General questions, no urgency', icon: Minus, iconClass: 'text-slate-600' },
+  { id: 'MEDIUM', label: 'Medium', desc: 'Affecting my work but I have a workaround', icon: TrendingUp, iconClass: 'text-blue-600' },
+  { id: 'HIGH', label: 'High', desc: 'Significantly impacting my work', icon: AlertCircle, iconClass: 'text-orange-600' },
+  { id: 'URGENT', label: 'Urgent', desc: 'Complete blocker, business critical', icon: Zap, iconClass: 'text-red-600' },
 ];
 
 export default function NewTicketPage() {
@@ -94,7 +94,7 @@ export default function NewTicketPage() {
                       form.department === dept.id ? 'border-blue-500 bg-blue-50' : 'border-slate-200 hover:border-slate-300'
                     }`}
                   >
-                    <dept.icon className={`h-6 w-6 text-${dept.color}-600 mb-2`} />
+                    <dept.icon className={`h-6 w-6 ${dept.iconClass} mb-2`} />
                     <div className="font-semibold text-slate-900 text-sm">{dept.label}</div>
                     <div className="text-slate-500 text-xs mt-0.5">{dept.desc}</div>
                   </button>
@@ -147,7 +147,7 @@ export default function NewTicketPage() {
                       form.priority === p.id ? 'border-blue-500 bg-blue-50' : 'border-slate-200 hover:border-slate-300'
                     }`}
                   >
-                    <p.icon className={`h-5 w-5 text-${p.color}-600 flex-shrink-0`} />
+                    <p.icon className={`h-5 w-5 ${p.iconClass} flex-shrink-0`} />
                     <div>
                       <div className="font-semibold text-slate-900 text-sm">{p.label}</div>
                       <div className="text-slate-500 text-xs">{p.desc}</div>

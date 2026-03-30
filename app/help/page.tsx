@@ -14,10 +14,10 @@ export default function HelpPage() {
   ];
 
   const categories = [
-    { icon: Settings, title: 'Technical Support', desc: 'Login issues, bugs, integrations', href: '/help/tickets/new?dept=Technical', color: 'blue' },
-    { icon: CreditCard, title: 'Billing & Payments', desc: 'Invoices, refunds, subscriptions', href: '/help/tickets/new?dept=Billing', color: 'green' },
-    { icon: MessageCircle, title: 'General Inquiries', desc: 'Account info, product questions', href: '/help/tickets/new?dept=General', color: 'purple' },
-    { icon: FileText, title: 'Sales', desc: 'Plans, pricing, enterprise', href: '/help/tickets/new?dept=Sales', color: 'amber' },
+    { icon: Settings, title: 'Technical Support', desc: 'Login issues, bugs, integrations', href: '/help/tickets/new?dept=Technical', bgClass: 'bg-blue-50', iconClass: 'text-blue-600' },
+    { icon: CreditCard, title: 'Billing & Payments', desc: 'Invoices, refunds, subscriptions', href: '/help/tickets/new?dept=Billing', bgClass: 'bg-green-50', iconClass: 'text-green-600' },
+    { icon: MessageCircle, title: 'General Inquiries', desc: 'Account info, product questions', href: '/help/tickets/new?dept=General', bgClass: 'bg-purple-50', iconClass: 'text-purple-600' },
+    { icon: FileText, title: 'Sales', desc: 'Plans, pricing, enterprise', href: '/help/tickets/new?dept=Sales', bgClass: 'bg-amber-50', iconClass: 'text-amber-600' },
   ];
 
   return (
@@ -67,8 +67,8 @@ export default function HelpPage() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {categories.map((cat) => (
               <Link key={cat.title} href={cat.href} className="bg-white rounded-xl p-6 border border-slate-200 hover:border-blue-200 hover:shadow-md transition-all group">
-                <div className={`h-10 w-10 rounded-lg bg-${cat.color}-50 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
-                  <cat.icon className={`h-5 w-5 text-${cat.color}-600`} />
+                <div className={`h-10 w-10 rounded-lg ${cat.bgClass} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
+                  <cat.icon className={`h-5 w-5 ${cat.iconClass}`} />
                 </div>
                 <h3 className="font-semibold text-slate-900 mb-1">{cat.title}</h3>
                 <p className="text-slate-500 text-sm">{cat.desc}</p>
