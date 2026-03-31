@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Search, PlusCircle, Headphones, FileText, CreditCard, Settings, MessageCircle, ChevronDown } from 'lucide-react';
+import { Search, PlusCircle, Headphones, BookOpen, Users, ClipboardList, Globe, Megaphone, GraduationCap, MessageCircle, ChevronDown } from 'lucide-react';
 import { getTicketsForCustomer, CURRENT_CUSTOMER } from '@/lib/mock-data';
 
 export default function HelpPage() {
@@ -14,10 +14,13 @@ export default function HelpPage() {
   ];
 
   const categories = [
-    { icon: Settings, title: 'Technical Support', desc: 'Login issues, bugs, integrations', href: '/help/tickets/new?dept=Technical', bgClass: 'bg-blue-50', iconClass: 'text-blue-600' },
-    { icon: CreditCard, title: 'Billing & Payments', desc: 'Invoices, refunds, subscriptions', href: '/help/tickets/new?dept=Billing', bgClass: 'bg-green-50', iconClass: 'text-green-600' },
-    { icon: MessageCircle, title: 'General Inquiries', desc: 'Account info, product questions', href: '/help/tickets/new?dept=General', bgClass: 'bg-purple-50', iconClass: 'text-purple-600' },
-    { icon: FileText, title: 'Sales', desc: 'Plans, pricing, enterprise', href: '/help/tickets/new?dept=Sales', bgClass: 'bg-amber-50', iconClass: 'text-amber-600' },
+    { icon: BookOpen, title: 'LMS', desc: 'E-learning, course access, penilaian', href: '/help/tickets/new?dept=LMS', bgClass: 'bg-blue-50', iconClass: 'text-blue-600' },
+    { icon: Users, title: 'CRM Application', desc: 'Data customer, input data, fitur CRM', href: '/help/tickets/new?dept=CRM', bgClass: 'bg-green-50', iconClass: 'text-green-600' },
+    { icon: Globe, title: 'Website', desc: 'Perubahan konten, akses website, bug', href: '/help/tickets/new?dept=Website', bgClass: 'bg-cyan-50', iconClass: 'text-cyan-600' },
+    { icon: Megaphone, title: 'Marketing', desc: 'Desain, brosur, blast email, jadwal', href: '/help/tickets/new?dept=Marketing', bgClass: 'bg-amber-50', iconClass: 'text-amber-600' },
+    { icon: ClipboardList, title: 'AUDITQ', desc: 'Audit project, extension, dokumentasi', href: '/help/tickets/new?dept=AUDITQ', bgClass: 'bg-purple-50', iconClass: 'text-purple-600' },
+    { icon: GraduationCap, title: 'Training Service', desc: 'Penambahan standar, jadwal training', href: '/help/tickets/new?dept=Training+Service', bgClass: 'bg-indigo-50', iconClass: 'text-indigo-600' },
+    { icon: MessageCircle, title: 'General / Other', desc: 'Pertanyaan umum atau lainnya', href: '/help/tickets/new?dept=General', bgClass: 'bg-slate-50', iconClass: 'text-slate-600' },
   ];
 
   return (
@@ -108,7 +111,7 @@ export default function HelpPage() {
                 </div>
               </Link>
               <Link href="/help/tickets" className="flex items-center gap-3 bg-white text-slate-700 p-4 rounded-xl border border-slate-200 hover:border-blue-200 transition-colors">
-                <FileText className="h-5 w-5 text-slate-500" />
+                <ClipboardList className="h-5 w-5 text-slate-500" />
                 <div>
                   <div className="font-semibold">View My Tickets</div>
                   <div className="text-slate-500 text-xs">{tickets.length} ticket{tickets.length !== 1 ? 's' : ''} total</div>

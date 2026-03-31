@@ -2,13 +2,16 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, ArrowRight, Check, Settings, CreditCard, MessageCircle, FileText, Headphones, AlertCircle, TrendingUp, Minus, Zap } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, BookOpen, Users, ClipboardList, Globe, Megaphone, GraduationCap, MessageCircle, Headphones, AlertCircle, TrendingUp, Minus, Zap } from 'lucide-react';
 
 const departments = [
-  { id: 'Technical', label: 'Technical Support', desc: 'Bugs, errors, integrations, account access', icon: Settings, iconClass: 'text-blue-600' },
-  { id: 'Billing', label: 'Billing & Payments', desc: 'Invoices, charges, refunds, subscriptions', icon: CreditCard, iconClass: 'text-green-600' },
-  { id: 'General', label: 'General Inquiry', desc: 'General questions about our products', icon: MessageCircle, iconClass: 'text-purple-600' },
-  { id: 'Sales', label: 'Sales', desc: 'Pricing, enterprise plans, partnerships', icon: FileText, iconClass: 'text-amber-600' },
+  { id: 'LMS', label: 'LMS (Learning Management)', desc: 'E-learning, course access, penilaian', icon: BookOpen, iconClass: 'text-blue-600' },
+  { id: 'CRM', label: 'CRM Application', desc: 'Data customer, input data, fitur CRM', icon: Users, iconClass: 'text-green-600' },
+  { id: 'AUDITQ', label: 'AUDITQ', desc: 'Audit project, extension, dokumentasi', icon: ClipboardList, iconClass: 'text-purple-600' },
+  { id: 'Website', label: 'Website', desc: 'Perubahan konten, akses website, bug', icon: Globe, iconClass: 'text-cyan-600' },
+  { id: 'Marketing', label: 'Marketing', desc: 'Desain, brosur, blast email, jadwal', icon: Megaphone, iconClass: 'text-amber-600' },
+  { id: 'Training Service', label: 'Training Service', desc: 'Penambahan standar, jadwal training', icon: GraduationCap, iconClass: 'text-indigo-600' },
+  { id: 'General', label: 'General / Other', desc: 'Pertanyaan umum atau lainnya', icon: MessageCircle, iconClass: 'text-slate-600' },
 ];
 
 const priorities = [
