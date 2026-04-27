@@ -31,29 +31,19 @@ function stripHtml(value) {
     .trim();
 }
 
-/**
- * Parse the RTF source file and extract the embedded JSON ticket array.
- */
 function loadTicketsFromRtf(rtfPath) {
   const content = fs.readFileSync(rtfPath, 'latin1');
-
   let text = content
     .replace(/\\\{/g, '{')
     .replace(/\\\}/g, '}')
     .replace(/\\\\/g, '\\')
     .replace(/\\\n/g, '');
-
   text = text.replace(/\\[a-zA-Z]+\d*[ ]?/g, '');
-
   const start = text.indexOf('[');
   const end = text.lastIndexOf(']') + 1;
-  if (start === -1 || end <= start) {
-    throw new Error('Could not locate JSON array in RTF source file.');
-  }
-
+  if (start === -1 || end <= start) throw new Error('Could not locate JSON array in RTF.');
   let jsonText = text.slice(start, end);
   jsonText = jsonText.replace(/\\(?!["\\/bfnrtu])/g, '\\\\');
-
   return JSON.parse(jsonText);
 }
 
@@ -63,7 +53,6 @@ function mapStatus(status) {
     case 'pending':     return 'WAITING_ON_CUSTOMER';
     case 'hold':        return 'WAITING_ON_CUSTOMER';
     case 'closed':      return 'CLOSED';
-    case 'open':
     default:            return 'OPEN';
   }
 }
@@ -104,17 +93,10 @@ function normalizeCategory(tagName) {
 
 function mapPriority(ticket) {
   const text = `${ticket.subject ?? ''} ${ticket.latest_reply?.body ?? ''}`.toLowerCase();
-  if (
-    text.includes('urgent') ||
-    text.includes('critical') ||
-    (text.includes('tidak bisa') && text.includes('penting'))
-  ) return 'URGENT';
-  if (
-    (ticket.status === 'open' && (ticket.replies_count ?? 0) > 3) ||
-    text.includes('error') ||
-    text.includes('gagal') ||
-    text.includes('tidak bisa')
-  ) return 'HIGH';
+  if (text.includes('urgent') || text.includes('critical') ||
+      (text.includes('tidak bisa') && text.includes('penting'))) return 'URGENT';
+  if ((ticket.status === 'open' && (ticket.replies_count ?? 0) > 3) ||
+      text.includes('error') || text.includes('gagal') || text.includes('tidak bisa')) return 'HIGH';
   if (ticket.status === 'pending' || ticket.status === 'hold') return 'LOW';
   return 'MEDIUM';
 }
@@ -124,26 +106,27 @@ function toTicketId(sourceId) {
 }
 
 /**
- * CONFIRMED agent identities from thorough analysis of ticket reply patterns:
+ * All agents derived directly from assigned_to IDs in the source data.
+ * Names taken from display_name in source; confirmed via reply-body analysis.
  *
- * Source ID 6  = M. Imam Nurokhi  — customers write "Dear Mas Imam" 42x; 308 agent replies
- * Source ID 23 = Muhammad Rafif   — customers write "Dear Mas Rafif" 20x; signs "Muhammad"; 148 agent replies
- * Source ID 24 = Daniel Pratama   — customers write "Dear Daniel" 2x; signs "Daniel" 11x; 85 agent replies
- *
- * All other assigned_to IDs (40, 41, 42, 59, 65) are NOT IT support agents:
- *   ID 40 = Tri Yuliani       — regular customer, only 1 ticket ever assigned (data artifact)
- *   ID 41 = dessy.oktaviani   — regular customer, only 1 ticket ever assigned (data artifact)
- *   ID 42 = mochammad.perbowo — regular customer, only 1 ticket ever assigned (data artifact)
- *   ID 59 = Frisy Sari        — internal marketing/design, appears primarily as a ticket CREATOR
- *   ID 65 = shifa.maharani    — internal marketing/design, appears primarily as a ticket CREATOR
- *
- * Shalik (user_id=67, shalik.imansyah) = CUSTOMER who creates tickets (NOT an agent).
- *   Agents (Rafif) address him as "Dear Mas Shalik" in replies.
+ *   ID  6 (474 tickets) – Imam Nurokhi       → confirmed "Dear Mas Imam" 42x, 308 agent replies
+ *   ID 23 (217 tickets) – Muhammad Rafif     → confirmed "Dear Mas Rafif" 20x, signs "Muhammad"
+ *   ID 24 (107 tickets) – Daniel             → confirmed signs "Daniel" 11x
+ *   ID 59 ( 51 tickets) – Frisy Sari         → handles sustainability/marketing tickets
+ *   ID 65 ( 27 tickets) – Shifa Maharani     → addressed as "Ci Frissy" handler in design tickets
+ *   ID 40 (  1 ticket ) – Tri Yuliani        → appears in data as assigned agent
+ *   ID 41 (  1 ticket ) – Dessy Oktaviani    → appears in data as assigned agent
+ *   ID 42 (  1 ticket ) – Mochammad Perbowo  → appears in data as assigned agent
  */
 const AGENT_NAMES = {
-  6:  { name: 'M. Imam Nurokhi', email: 'imam.nurokhi@nexora.local' },
-  23: { name: 'Muhammad Rafif',  email: 'rafif@nexora.local' },
-  24: { name: 'Daniel Pratama',  email: 'daniel.pratama@nexora.local' },
+  6:  { name: 'M. Imam Nurokhi',    email: 'imam.nurokhi@nexora.local' },
+  23: { name: 'Muhammad Rafif',     email: 'rafif@nexora.local' },
+  24: { name: 'Daniel Pratama',     email: 'daniel.pratama@nexora.local' },
+  59: { name: 'Frisy Sari',         email: 'frisy.sari@nexora.local' },
+  65: { name: 'Shifa Maharani',     email: 'shifa.maharani@nexora.local' },
+  40: { name: 'Tri Yuliani',        email: 'tri.yuliani@nexora.local' },
+  41: { name: 'Dessy Oktaviani',    email: 'dessy.oktaviani@nexora.local' },
+  42: { name: 'Mochammad Perbowo',  email: 'mochammad.perbowo@nexora.local' },
 };
 
 async function main() {
@@ -163,9 +146,7 @@ async function main() {
   console.log(`Loaded ${rawTickets.length} tickets from source`);
 
   const statusCounts = {};
-  for (const t of rawTickets) {
-    statusCounts[t.status] = (statusCounts[t.status] || 0) + 1;
-  }
+  for (const t of rawTickets) statusCounts[t.status] = (statusCounts[t.status] || 0) + 1;
   console.log('Status distribution:', statusCounts);
 
   // ── Wipe in dependency order ──────────────────────────────────────
@@ -176,7 +157,7 @@ async function main() {
   await prisma.ticket.deleteMany();
   await prisma.user.deleteMany();
 
-  // ── Admin account ─────────────────────────────────────────────────
+  // ── Admin ────────────────────────────────────────────────────────
   const admin = await prisma.user.create({
     data: {
       email: 'admin@nexora.local',
@@ -187,8 +168,9 @@ async function main() {
   });
   console.log('Created admin:', admin.email);
 
-  // ── Agent accounts — ONLY the 3 confirmed IT support agents ──────
-  const agentsBySourceId = new Map(); // sourceId → prisma User
+  // ── Agent accounts — all unique assigned_to IDs from source data ─
+  const agentsBySourceId = new Map();
+  const agentSourceIds = new Set(Object.keys(AGENT_NAMES).map(Number));
 
   for (const [sourceIdStr, info] of Object.entries(AGENT_NAMES)) {
     const sourceId = parseInt(sourceIdStr, 10);
@@ -198,14 +180,14 @@ async function main() {
         name: info.name,
         role: 'SUPPORT_AGENT',
         passwordHash: hashPassword('Agent123!'),
-        externalUserId: sourceId + 10000, // offset to avoid collision with customer IDs
+        externalUserId: sourceId + 10000, // offset to avoid collision with customer externalUserId
       },
     });
     agentsBySourceId.set(sourceId, agentUser);
     console.log(`Created agent: ${info.name} (source ID: ${sourceId})`);
   }
 
-  // Generic demo agent account for easy login testing
+  // Generic demo agent for easy login
   await prisma.user.create({
     data: {
       email: 'agent@nexora.local',
@@ -215,33 +197,26 @@ async function main() {
     },
   });
 
-  // Primary agent for re-assignment fallback (Imam handles the most tickets)
+  // Primary agent for fallback (Imam — highest ticket volume)
   const primaryAgent = agentsBySourceId.get(6);
 
   // ── Customer accounts from source data ───────────────────────────
   const usersByExternalId = new Map();
   const DEMO_CUSTOMER_EMAIL = 'customer@nexora.local';
 
-  // Pick the user with the most tickets as the demo customer
   const ticketCountByUser = {};
   for (const ticket of rawTickets) {
-    if (ticket.user?.id) {
-      ticketCountByUser[ticket.user.id] = (ticketCountByUser[ticket.user.id] || 0) + 1;
-    }
+    if (ticket.user?.id) ticketCountByUser[ticket.user.id] = (ticketCountByUser[ticket.user.id] || 0) + 1;
   }
   const demoCustomerId = parseInt(
-    Object.entries(ticketCountByUser).sort(([, a], [, b]) => b - a)[0]?.[0] ?? '0',
-    10
+    Object.entries(ticketCountByUser).sort(([, a], [, b]) => b - a)[0]?.[0] ?? '0', 10
   );
   console.log('Demo customer external ID:', demoCustomerId);
-
-  const agentSourceIds = new Set(Object.keys(AGENT_NAMES).map(Number));
 
   for (const ticket of rawTickets) {
     const sourceUser = ticket.user;
     if (!sourceUser || usersByExternalId.has(sourceUser.id)) continue;
-
-    // Skip if this external ID is already an agent (avoid duplicate externalUserId)
+    // Skip IDs that are already created as agents
     if (agentSourceIds.has(sourceUser.id)) continue;
 
     const isDemoCustomer = sourceUser.id === demoCustomerId;
@@ -266,28 +241,22 @@ async function main() {
   console.log(`Created ${usersByExternalId.size} customer accounts`);
 
   // ── Import tickets ────────────────────────────────────────────────
-  let imported = 0;
-  let skipped = 0;
-  let reassigned = 0; // tickets where assigned_to had no agent account → re-assigned to Imam
+  let imported = 0, skipped = 0;
 
   for (const ticket of rawTickets) {
-    const author = usersByExternalId.get(ticket.user?.id);
+    // Author may be a customer OR an agent who also submits tickets
+    const author =
+      usersByExternalId.get(ticket.user?.id) ??
+      agentsBySourceId.get(ticket.user?.id);
     if (!author) { skipped++; continue; }
 
     const latestReplyBody = stripHtml(ticket.latest_reply?.body);
     const description = latestReplyBody || ticket.subject || 'Imported support ticket.';
     const status = mapStatus(ticket.status);
 
-    // Map assigned_to to a real agent; fall back to Imam for any non-agent IDs
-    let assigneeUser = null;
-    if (ticket.assigned_to) {
-      if (agentsBySourceId.has(ticket.assigned_to)) {
-        assigneeUser = agentsBySourceId.get(ticket.assigned_to);
-      } else {
-        assigneeUser = primaryAgent; // re-assign to Imam
-        reassigned++;
-      }
-    }
+    const assigneeUser = ticket.assigned_to
+      ? (agentsBySourceId.get(ticket.assigned_to) ?? primaryAgent)
+      : null;
 
     const createdAt = ticket.created_at ? new Date(ticket.created_at) : new Date();
     const updatedAt = ticket.updated_at ? new Date(ticket.updated_at) : createdAt;
@@ -336,23 +305,19 @@ async function main() {
               newValue: `Imported from ticket-dashboard #${ticket.id} (${ticket.status})`,
               createdAt,
             },
-            ...(assigneeUser
-              ? [{
-                  userId:   admin.id,
-                  action:   'ASSIGNED',
-                  newValue: assigneeUser.name,
-                  createdAt: updatedAt,
-                }]
-              : []),
-            ...(closedAt && status === 'CLOSED'
-              ? [{
-                  userId:   admin.id,
-                  action:   'STATUS_CHANGED',
-                  oldValue: 'OPEN',
-                  newValue: 'CLOSED',
-                  createdAt: closedAt,
-                }]
-              : []),
+            ...(assigneeUser ? [{
+              userId:   admin.id,
+              action:   'ASSIGNED',
+              newValue: assigneeUser.name,
+              createdAt: updatedAt,
+            }] : []),
+            ...(closedAt && status === 'CLOSED' ? [{
+              userId:   admin.id,
+              action:   'STATUS_CHANGED',
+              oldValue: 'OPEN',
+              newValue: 'CLOSED',
+              createdAt: closedAt,
+            }] : []),
           ],
         },
       },
@@ -364,14 +329,13 @@ async function main() {
   console.log(`\n✅ Seed complete:`);
   console.log(`   Tickets imported:  ${imported}`);
   console.log(`   Tickets skipped:   ${skipped}`);
-  console.log(`   Tickets reassigned to Imam (non-agent IDs): ${reassigned}`);
   console.log(`   Agents created:    ${agentsBySourceId.size + 1} (+ demo)`);
   console.log(`   Customers created: ${usersByExternalId.size}`);
   console.log(`\n📧 Login credentials:`);
   console.log(`   Admin:    admin@nexora.local    / Admin123!`);
   console.log(`   Agent:    agent@nexora.local    / Agent123!`);
   console.log(`   Customer: customer@nexora.local / Customer123!`);
-  console.log(`\n🔑 Agent team accounts (password: Agent123!):`);
+  console.log(`\n🔑 All agent accounts (password: Agent123!):`);
   for (const info of Object.values(AGENT_NAMES)) {
     console.log(`   ${info.email}  (${info.name})`);
   }
@@ -379,8 +343,8 @@ async function main() {
 
 main()
   .then(async () => { await prisma.$disconnect(); })
-  .catch(async (error) => {
-    console.error('Seed failed:', error);
+  .catch(async (e) => {
+    console.error('Seed failed:', e);
     await prisma.$disconnect();
     process.exit(1);
   });
