@@ -2,10 +2,17 @@ import { z } from 'zod';
 import { getCurrentUser } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { serializeTicket, ticketInclude } from '@/lib/tickets';
+import { sendCommentEmails } from '@/lib/email';
 
 const commentSchema = z.object({
   message: z.string().trim().min(1).max(5000),
   isInternalNote: z.boolean().optional().default(false),
+  attachments: z.array(z.object({
+    storedName: z.string(),
+    filename: z.string(),
+    mimeType: z.string(),
+    size: z.number(),
+  })).max(5).optional().default([]),
 });
 
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
@@ -24,6 +31,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   const { id } = await context.params;
   const ticket = await db.ticket.findUnique({
     where: { id },
+    include: { author: true, assignee: true },
   });
 
   if (!ticket) {
@@ -52,12 +60,22 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     nextStatus = 'WAITING_ON_CUSTOMER';
   }
 
-  await db.ticketComment.create({
+  const comment = await db.ticketComment.create({
     data: {
       ticketId: ticket.id,
       authorId: user.id,
       message: payload.data.message,
       isInternalNote: payload.data.isInternalNote,
+      attachments: payload.data.attachments.length > 0 ? {
+        create: payload.data.attachments.map((att) => ({
+          ticketId: ticket.id,
+          filename: att.filename,
+          storedName: att.storedName,
+          mimeType: att.mimeType,
+          size: att.size,
+          uploaderId: user.id,
+        })),
+      } : undefined,
     },
   });
 
@@ -76,5 +94,21 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     include: ticketInclude,
   });
 
-  return Response.json({ ticket: serializeTicket(updatedTicket) }, { status: 201 });
+  // Send email notifications asynchronously
+  sendCommentEmails({
+    ticketId: ticket.ticketId,
+    ticketDbId: ticket.id,
+    title: ticket.title,
+    message: payload.data.message,
+    isInternalNote: payload.data.isInternalNote,
+    authorName: user.name,
+    authorRole: user.role,
+    customerName: ticket.author.name,
+    customerEmail: ticket.author.email,
+    assigneeName: ticket.assignee?.name ?? null,
+    assigneeEmail: ticket.assignee?.email ?? null,
+    attachmentCount: payload.data.attachments.length,
+  }).catch((err) => console.error('[Email] sendCommentEmails error:', err));
+
+  return Response.json({ ticket: serializeTicket(updatedTicket), commentId: comment.id }, { status: 201 });
 }

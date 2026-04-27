@@ -3,22 +3,25 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { AlertCircle, Send } from 'lucide-react';
+import FileUploader, { type UploadedFile } from '@/components/ui/FileUploader';
 
 export default function TicketReplyForm({ ticketId }: { ticketId: string }) {
   const router = useRouter();
   const [message, setMessage] = useState('');
+  const [attachments, setAttachments] = useState<UploadedFile[]>([]);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState('');
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!message.trim()) return;
     setPending(true);
     setError('');
 
     const response = await fetch(`/api/tickets/${ticketId}/comments`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message }),
+      body: JSON.stringify({ message, attachments }),
     });
 
     const data = await response.json();
@@ -30,6 +33,7 @@ export default function TicketReplyForm({ ticketId }: { ticketId: string }) {
     }
 
     setMessage('');
+    setAttachments([]);
     router.refresh();
   }
 
@@ -40,7 +44,7 @@ export default function TicketReplyForm({ ticketId }: { ticketId: string }) {
         <span className="text-sm font-semibold text-slate-700">Add a Reply</span>
       </div>
 
-      <div className="p-4 md:p-5">
+      <div className="p-4 md:p-5 space-y-3">
         <textarea
           value={message}
           onChange={(event) => setMessage(event.target.value)}
@@ -50,8 +54,10 @@ export default function TicketReplyForm({ ticketId }: { ticketId: string }) {
           className="w-full text-sm text-slate-700 placeholder-slate-400 resize-none rounded-xl border border-slate-200 p-3.5 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-shadow"
         />
 
+        <FileUploader onFilesChange={setAttachments} maxFiles={5} />
+
         {error ? (
-          <div className="mt-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 flex items-start gap-2">
+          <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 flex items-start gap-2">
             <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5" aria-hidden="true" />
             {error}
           </div>

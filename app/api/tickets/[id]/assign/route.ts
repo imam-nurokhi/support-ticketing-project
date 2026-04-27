@@ -1,5 +1,6 @@
 import { getCurrentUser } from '@/lib/auth';
 import { db } from '@/lib/db';
+import { sendAssignedEmail } from '@/lib/email';
 
 export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser();
@@ -17,14 +18,18 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
 
   const { id } = await context.params;
 
-  const existingTicket = await db.ticket.findUnique({ where: { id } });
+  const existingTicket = await db.ticket.findUnique({
+    where: { id },
+    include: { author: true },
+  });
 
   if (!existingTicket) {
     return Response.json({ error: 'Ticket not found.' }, { status: 404 });
   }
 
+  let assignee = null;
   if (assigneeId !== null) {
-    const assignee = await db.user.findUnique({ where: { id: assigneeId } });
+    assignee = await db.user.findUnique({ where: { id: assigneeId } });
     if (!assignee || (assignee.role !== 'SUPPORT_AGENT' && assignee.role !== 'ADMIN')) {
       return Response.json({ error: 'Invalid assignee.' }, { status: 400 });
     }
@@ -44,6 +49,20 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
       },
     },
   });
+
+  // Send assignment email notification to the new assignee asynchronously
+  if (assigneeId && assignee && assigneeId !== existingTicket.assigneeId) {
+    sendAssignedEmail({
+      ticketId: existingTicket.ticketId,
+      ticketDbId: existingTicket.id,
+      title: existingTicket.title,
+      customerName: existingTicket.author.name,
+      customerEmail: existingTicket.author.email,
+      assigneeName: assignee.name,
+      assigneeEmail: assignee.email,
+      assignedByName: user.name,
+    }).catch((err) => console.error('[Email] sendAssignedEmail error:', err));
+  }
 
   return Response.json({ success: true });
 }

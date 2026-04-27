@@ -16,6 +16,7 @@ import {
 import { LogoutButton } from '@/components/auth/LogoutButton';
 import { getDefaultRouteForRole, requireUser } from '@/lib/auth';
 import { getCustomerTickets } from '@/lib/tickets';
+import WelcomeGuide from '@/components/ui/WelcomeGuide';
 
 export default async function HelpPage() {
   const user = await requireUser(undefined, '/help');
@@ -41,6 +42,7 @@ export default async function HelpPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
+      <WelcomeGuide role={user.role} />
       {/* Nav — CSS-only mobile menu via checkbox hack (no client JS needed) */}
       <nav className="bg-white border-b border-slate-100 sticky top-0 z-50 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
