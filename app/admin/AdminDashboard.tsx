@@ -10,6 +10,7 @@ import {
   Inbox,
   LoaderCircle,
   Medal,
+  Menu,
   Search,
   Shield,
   Star,
@@ -61,6 +62,8 @@ export default function AdminDashboard({ user }: { user: SessionUser }) {
   const [search, setSearch] = useState('');
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [insightsOpen, setInsightsOpen] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -128,10 +131,33 @@ export default function AdminDashboard({ user }: { user: SessionUser }) {
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
+      {/* Mobile sidebar overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-black/60 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
       <div className="grid min-h-screen lg:grid-cols-[260px_minmax(0,1fr)_340px]">
 
         {/* ── Left sidebar ─────────────────────────────────────── */}
-        <aside className="border-r border-slate-800 bg-slate-950/80 p-6 flex flex-col">
+        <aside
+          className={`fixed inset-y-0 left-0 z-40 w-[260px] border-r border-slate-800 bg-slate-950 p-6 flex flex-col transition-transform duration-300 ease-in-out lg:relative lg:inset-auto lg:translate-x-0 lg:z-auto ${
+            sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
+        >
+          {/* Close button (mobile only) */}
+          <button
+            type="button"
+            onClick={() => setSidebarOpen(false)}
+            className="lg:hidden absolute top-4 right-4 text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition-colors"
+            aria-label="Close sidebar"
+          >
+            <X className="h-4 w-4" />
+          </button>
+
           {/* Logo */}
           <div className="flex items-center gap-3">
             <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-violet-600 flex-shrink-0">
@@ -149,13 +175,13 @@ export default function AdminDashboard({ user }: { user: SessionUser }) {
           </div>
 
           <nav className="mt-6 space-y-1.5 text-sm">
-            <Link href="/admin" className="flex items-center gap-3 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-4 py-2.5 font-medium text-white shadow-sm">
+            <Link href="/admin" onClick={() => setSidebarOpen(false)} className="flex items-center gap-3 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-4 py-2.5 font-medium text-white shadow-sm">
               <BarChart3 className="h-4 w-4" /> Overview
             </Link>
-            <Link href="/agent" className="flex items-center gap-3 rounded-xl px-4 py-2.5 text-slate-300 transition hover:bg-slate-800 hover:text-white">
+            <Link href="/agent" onClick={() => setSidebarOpen(false)} className="flex items-center gap-3 rounded-xl px-4 py-2.5 text-slate-300 transition hover:bg-slate-800 hover:text-white">
               <Inbox className="h-4 w-4" /> Agent workspace
             </Link>
-            <Link href="/help" className="flex items-center gap-3 rounded-xl px-4 py-2.5 text-slate-300 transition hover:bg-slate-800 hover:text-white">
+            <Link href="/help" onClick={() => setSidebarOpen(false)} className="flex items-center gap-3 rounded-xl px-4 py-2.5 text-slate-300 transition hover:bg-slate-800 hover:text-white">
               <UserRound className="h-4 w-4" /> Customer portal
             </Link>
           </nav>
@@ -181,14 +207,25 @@ export default function AdminDashboard({ user }: { user: SessionUser }) {
         {/* ── Main content ──────────────────────────────────────── */}
         <main className="bg-slate-50 text-slate-900 overflow-auto">
           {/* Header */}
-          <div className="border-b border-slate-200 bg-white px-6 py-5 sm:px-8 sticky top-0 z-10 shadow-sm">
+          <div className="border-b border-slate-200 bg-white px-4 sm:px-6 py-5 sticky top-0 z-10 shadow-sm">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-              <div>
-                <h1 className="text-2xl font-bold tracking-tight">Support Admin</h1>
-                <p className="mt-0.5 text-sm text-slate-500">Ticket management and analytics for Support by Nexora.</p>
+              <div className="flex items-center gap-3">
+                {/* Mobile hamburger for left sidebar */}
+                <button
+                  type="button"
+                  onClick={() => setSidebarOpen(true)}
+                  className="lg:hidden p-2 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors flex-shrink-0"
+                  aria-label="Open sidebar"
+                >
+                  <Menu className="h-5 w-5" />
+                </button>
+                <div>
+                  <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Support Admin</h1>
+                  <p className="mt-0.5 text-sm text-slate-500 hidden sm:block">Ticket management and analytics for Support by Nexora.</p>
+                </div>
               </div>
               <div className="flex flex-col gap-3 sm:flex-row">
-                <div className="relative min-w-[260px]">
+                <div className="relative min-w-[200px] sm:min-w-[260px]">
                   <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                   <input
                     value={search}
@@ -197,21 +234,33 @@ export default function AdminDashboard({ user }: { user: SessionUser }) {
                     className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                   />
                 </div>
-                <select
-                  value={category}
-                  onChange={(e) => { setCategory(e.target.value); setPage(1); }}
-                  className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                >
-                  <option value="">All categories</option>
-                  {payload.summary.byCategory.map((item) => (
-                    <option key={item.name} value={item.name}>{item.name}</option>
-                  ))}
-                </select>
+                <div className="flex gap-2">
+                  <select
+                    value={category}
+                    onChange={(e) => { setCategory(e.target.value); setPage(1); }}
+                    className="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                  >
+                    <option value="">All categories</option>
+                    {payload.summary.byCategory.map((item) => (
+                      <option key={item.name} value={item.name}>{item.name}</option>
+                    ))}
+                  </select>
+                  {/* Mobile insights toggle */}
+                  <button
+                    type="button"
+                    onClick={() => setInsightsOpen((o) => !o)}
+                    className="xl:hidden flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-600 hover:bg-slate-100 transition"
+                    aria-label="Toggle insights"
+                  >
+                    <Filter className="h-4 w-4" />
+                    <span className="sr-only sm:not-sr-only sm:text-xs">Insights</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="px-6 py-6 sm:px-8">
+          <div className="px-4 sm:px-6 lg:px-8 py-6">
             {/* Summary cards */}
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5 mb-6">
               <SummaryCard label="Total tickets" value={String(payload.summary.total)} tone="slate" />
@@ -330,7 +379,7 @@ export default function AdminDashboard({ user }: { user: SessionUser }) {
         </main>
 
         {/* ── Right insights sidebar ────────────────────────────── */}
-        <aside className="border-l border-slate-800 bg-slate-950/80 p-5 text-slate-200 overflow-y-auto">
+        <aside className={`border-t xl:border-t-0 xl:border-l border-slate-800 bg-slate-950/80 p-5 text-slate-200 overflow-y-auto ${insightsOpen ? 'block' : 'hidden xl:block'}`}>
           <div className="flex items-center gap-2 text-xs uppercase tracking-wide text-slate-500 mb-5">
             <Filter className="h-4 w-4" /> Insights
           </div>
