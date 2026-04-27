@@ -253,6 +253,7 @@ export default function AdminDashboard({ user }: { user: SessionUser }) {
                     aria-label="Toggle insights"
                   >
                     <Filter className="h-4 w-4" />
+                    <span className="sr-only sm:not-sr-only sm:text-xs">Insights</span>
                   </button>
                 </div>
               </div>

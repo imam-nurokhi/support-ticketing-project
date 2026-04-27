@@ -196,7 +196,7 @@ export default function AgentTicketDetail({
                       >
                         {comment.author.name.charAt(0)}
                       </div>
-                      <div className={`max-w-[80%] flex flex-col ${isAgent ? 'items-end' : 'items-start'}`}>
+                      <div className={`max-w-[90%] sm:max-w-[80%] flex flex-col ${isAgent ? 'items-end' : 'items-start'}`}>
                         <div className={`flex items-center gap-2 mb-1.5 flex-wrap ${isAgent ? 'flex-row-reverse' : ''}`}>
                           <span className="text-xs font-semibold text-slate-700">{comment.author.name}</span>
                           <span className="text-xs text-slate-400">{formatDate(comment.createdAt)}</span>
