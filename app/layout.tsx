@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Resolv — Enterprise Support by Nexora',
+  title: 'Support — Enterprise Help Desk by Nexora',
   description: 'Professional helpdesk ticketing system for Nexora customers',
 };
 

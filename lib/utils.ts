@@ -1,5 +1,6 @@
-export function formatDistanceToNow(date: Date): string {
-  const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+export function formatDistanceToNow(date: Date | string): string {
+  const parsedDate = new Date(date);
+  const seconds = Math.floor((Date.now() - parsedDate.getTime()) / 1000);
   if (seconds < 60) return `${seconds}s`;
   const minutes = Math.floor(seconds / 60);
   if (minutes < 60) return `${minutes}m`;
@@ -9,7 +10,7 @@ export function formatDistanceToNow(date: Date): string {
   return `${days}d`;
 }
 
-export function formatDate(date: Date): string {
+export function formatDate(date: Date | string): string {
   return new Intl.DateTimeFormat('en-US', {
     month: 'short',
     day: 'numeric',

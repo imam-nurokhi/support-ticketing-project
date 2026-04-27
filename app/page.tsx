@@ -1,127 +1,341 @@
+'use client';
+
+import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowRight, Headphones, Zap, Shield, BarChart3, MessageSquare, Clock } from 'lucide-react';
+import {
+  ArrowRight,
+  Headphones,
+  Zap,
+  Shield,
+  BarChart3,
+  MessageSquare,
+  Clock,
+  Menu,
+  X,
+} from 'lucide-react';
 
 export default function HomePage() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const features = [
+    {
+      icon: Zap,
+      title: 'Lightning Fast',
+      desc: 'Automated routing and smart assignment gets tickets to the right agent instantly.',
+      iconBg: 'bg-amber-50',
+      iconColor: 'text-amber-500',
+      hoverBorder: 'hover:border-amber-200',
+      hoverBg: 'hover:bg-amber-50/40',
+    },
+    {
+      icon: Shield,
+      title: 'Enterprise Security',
+      desc: 'Role-based access control with full audit trails for every ticket action.',
+      iconBg: 'bg-violet-50',
+      iconColor: 'text-violet-600',
+      hoverBorder: 'hover:border-violet-200',
+      hoverBg: 'hover:bg-violet-50/40',
+    },
+    {
+      icon: BarChart3,
+      title: 'Deep Analytics',
+      desc: 'Real-time dashboards and SLA tracking to keep your team performing at its best.',
+      iconBg: 'bg-emerald-50',
+      iconColor: 'text-emerald-600',
+      hoverBorder: 'hover:border-emerald-200',
+      hoverBg: 'hover:bg-emerald-50/40',
+    },
+    {
+      icon: MessageSquare,
+      title: 'Unified Inbox',
+      desc: 'All customer conversations in one place — email, chat, and portal combined.',
+      iconBg: 'bg-purple-50',
+      iconColor: 'text-purple-600',
+      hoverBorder: 'hover:border-purple-200',
+      hoverBg: 'hover:bg-purple-50/40',
+    },
+    {
+      icon: Clock,
+      title: 'SLA Management',
+      desc: 'Automatic SLA timers with color-coded urgency alerts for your entire team.',
+      iconBg: 'bg-rose-50',
+      iconColor: 'text-rose-500',
+      hoverBorder: 'hover:border-rose-200',
+      hoverBg: 'hover:bg-rose-50/40',
+    },
+    {
+      icon: Headphones,
+      title: 'Omnichannel',
+      desc: 'Customers can reach you through any channel. One unified inbox for everything.',
+      iconBg: 'bg-indigo-50',
+      iconColor: 'text-indigo-600',
+      hoverBorder: 'hover:border-indigo-200',
+      hoverBg: 'hover:bg-indigo-50/40',
+    },
+  ];
+
+  const stats = [
+    { value: '< 2h', label: 'Avg. Response Time' },
+    { value: '98%', label: 'Customer Satisfaction' },
+    { value: '24/7', label: 'Support Coverage' },
+  ];
+
   return (
     <div className="min-h-screen bg-white">
-      {/* Nav */}
-      <nav className="border-b border-slate-100 bg-white/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center">
-              <Headphones className="h-5 w-5 text-white" />
+
+      {/* ── Sticky Navigation ── */}
+      <nav className="sticky top-0 z-50 border-b border-violet-100 bg-white/90 backdrop-blur-md">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex h-16 items-center justify-between">
+
+            {/* Logo */}
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-600">
+                <Headphones className="h-4 w-4 text-white" />
+              </div>
+              <span className="text-xl font-bold text-slate-800">Support</span>
+              <span className="ml-0.5 text-sm text-slate-400">by Nexora</span>
             </div>
-            <span className="font-bold text-xl text-slate-800">Resolv</span>
-            <span className="text-slate-400 text-sm ml-1">by Nexora</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <Link href="/help" className="text-slate-600 hover:text-slate-900 text-sm font-medium">Help Center</Link>
-            <Link href="/agent" className="text-slate-600 hover:text-slate-900 text-sm font-medium">Agent Portal</Link>
-            <Link href="/help/tickets/new" className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
-              Submit Ticket
-            </Link>
+
+            {/* Desktop nav links */}
+            <div className="hidden items-center gap-1 md:flex">
+              <Link
+                href="/help"
+                className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-violet-50 hover:text-violet-700"
+              >
+                Help Center
+              </Link>
+              <Link
+                href="/agent"
+                className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-violet-50 hover:text-violet-700"
+              >
+                Agent Portal
+              </Link>
+              <Link
+                href="/login"
+                className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-violet-50 hover:text-violet-700"
+              >
+                Sign In
+              </Link>
+              <Link
+                href="/help/tickets/new"
+                className="ml-2 rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:bg-violet-700"
+              >
+                Submit Ticket
+              </Link>
+            </div>
+
+            {/* Mobile hamburger button */}
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen((prev) => !prev)}
+              aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+              className="flex items-center justify-center rounded-lg p-2 text-slate-600 hover:bg-violet-50 hover:text-violet-700 md:hidden"
+            >
+              {mobileMenuOpen ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Menu className="h-5 w-5" />
+              )}
+            </button>
           </div>
         </div>
+
+        {/* Mobile dropdown menu */}
+        {mobileMenuOpen && (
+          <div className="border-t border-violet-100 bg-white px-4 pb-4 pt-2 md:hidden">
+            <div className="flex flex-col gap-1">
+              <Link
+                href="/help"
+                onClick={() => setMobileMenuOpen(false)}
+                className="rounded-lg px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-violet-50 hover:text-violet-700"
+              >
+                Help Center
+              </Link>
+              <Link
+                href="/agent"
+                onClick={() => setMobileMenuOpen(false)}
+                className="rounded-lg px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-violet-50 hover:text-violet-700"
+              >
+                Agent Portal
+              </Link>
+              <Link
+                href="/login"
+                onClick={() => setMobileMenuOpen(false)}
+                className="rounded-lg px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-violet-50 hover:text-violet-700"
+              >
+                Sign In
+              </Link>
+              <Link
+                href="/help/tickets/new"
+                onClick={() => setMobileMenuOpen(false)}
+                className="mt-1 rounded-lg bg-violet-600 px-3 py-2.5 text-sm font-medium text-white hover:bg-violet-700"
+              >
+                Submit Ticket
+              </Link>
+            </div>
+          </div>
+        )}
       </nav>
 
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-slate-50 pt-20 pb-32">
-        <div className="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] -z-10" />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-100 text-blue-700 px-4 py-1.5 rounded-full text-sm font-medium mb-8">
-            <span className="h-2 w-2 bg-blue-500 rounded-full animate-pulse"></span>
+      {/* ── Hero Section ── */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-violet-600 via-purple-600 to-violet-700 pb-0 pt-20">
+
+        {/* Decorative background blobs */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+          <div className="absolute -right-32 -top-32 h-96 w-96 rounded-full bg-purple-500/20 blur-3xl" />
+          <div className="absolute -bottom-24 -left-16 h-80 w-80 rounded-full bg-violet-400/20 blur-3xl" />
+          <div className="absolute left-1/2 top-1/3 h-64 w-64 -translate-x-1/2 rounded-full bg-white/5 blur-2xl" />
+        </div>
+
+        <div className="relative mx-auto max-w-7xl px-4 pb-24 pt-4 text-center sm:px-6 lg:px-8">
+
+          {/* Animated badge */}
+          <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-violet-400/40 bg-violet-800/40 px-4 py-1.5 text-sm font-medium text-violet-100 backdrop-blur-sm">
+            <span className="h-2 w-2 animate-pulse rounded-full bg-violet-400" />
             Enterprise Support Platform
           </div>
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-slate-900 mb-6 tracking-tight">
+
+          {/* Main headline */}
+          <h1 className="mb-6 text-5xl font-bold tracking-tight text-white sm:text-6xl lg:text-7xl">
             Support that scales
             <br />
-            <span className="text-blue-600">with your business</span>
+            <span className="text-violet-200">with your business</span>
           </h1>
-          <p className="text-xl text-slate-600 max-w-3xl mx-auto mb-10 leading-relaxed">
-            Resolv helps Nexora&apos;s support team deliver exceptional customer experiences. 
+
+          {/* Subtext */}
+          <p className="mx-auto mb-10 max-w-3xl text-xl leading-relaxed text-violet-100">
+            Support helps Nexora&apos;s team deliver exceptional customer experiences.
             Track, manage, and resolve tickets with blazing speed and full visibility.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/help/tickets/new" className="inline-flex items-center justify-center gap-2 bg-blue-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200">
+
+          {/* CTA buttons */}
+          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
+            <Link
+              href="/help/tickets/new"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-8 py-4 text-lg font-semibold text-violet-600 shadow-lg shadow-violet-900/30 hover:bg-violet-50"
+            >
               Submit a Ticket <ArrowRight className="h-5 w-5" />
             </Link>
-            <Link href="/help" className="inline-flex items-center justify-center gap-2 bg-white text-slate-700 px-8 py-4 rounded-xl text-lg font-semibold hover:bg-slate-50 transition-colors border border-slate-200 shadow-sm">
+            <Link
+              href="/help"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-white/30 px-8 py-4 text-lg font-semibold text-white hover:border-white/60 hover:bg-white/10"
+            >
               Browse Help Center
             </Link>
           </div>
-          {/* Stats */}
-          <div className="mt-20 grid grid-cols-3 gap-8 max-w-2xl mx-auto">
-            {[
-              { value: '< 2h', label: 'Avg. Response Time' },
-              { value: '98%', label: 'Customer Satisfaction' },
-              { value: '24/7', label: 'Support Coverage' },
-            ].map((stat) => (
-              <div key={stat.label} className="text-center">
-                <div className="text-3xl font-bold text-slate-900">{stat.value}</div>
-                <div className="text-sm text-slate-500 mt-1">{stat.label}</div>
+
+          {/* Stats row — translucent violet-800/40 cards */}
+          <div className="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-4 sm:grid-cols-3">
+            {stats.map((stat) => (
+              <div
+                key={stat.label}
+                className="rounded-2xl border border-violet-400/20 bg-violet-800/40 px-6 py-5 backdrop-blur-sm"
+              >
+                <div className="text-3xl font-bold text-white">{stat.value}</div>
+                <div className="mt-1 text-sm text-violet-200">{stat.label}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Features */}
-      <section className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">Everything your team needs</h2>
-            <p className="text-slate-600 max-w-2xl mx-auto">A complete support operations platform built for modern teams.</p>
+      {/* ── Features Section ── */}
+      <section className="bg-white py-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+
+          {/* Section header */}
+          <div className="mb-16 text-center">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-violet-100 bg-violet-50 px-4 py-1 text-sm font-medium text-violet-700">
+              Built for modern teams
+            </div>
+            <h2 className="mb-4 text-3xl font-bold text-slate-900 sm:text-4xl">
+              Everything your team needs
+            </h2>
+            <p className="mx-auto max-w-2xl text-slate-600">
+              A complete support operations platform — from lightning-fast routing
+              to deep analytics and omnichannel coverage.
+            </p>
           </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              { icon: Zap, title: 'Lightning Fast', desc: 'Automated routing and smart assignment gets tickets to the right agent instantly.', color: 'text-amber-500' },
-              { icon: Shield, title: 'Enterprise Security', desc: 'Role-based access control with full audit trails for every ticket action.', color: 'text-blue-500' },
-              { icon: BarChart3, title: 'Deep Analytics', desc: 'Real-time dashboards and SLA tracking to keep your team performing.', color: 'text-green-500' },
-              { icon: MessageSquare, title: 'Unified Inbox', desc: 'All customer conversations in one place — email, chat, and portal.', color: 'text-purple-500' },
-              { icon: Clock, title: 'SLA Management', desc: 'Automatic SLA timers with color-coded urgency alerts for your team.', color: 'text-red-500' },
-              { icon: Headphones, title: 'Omnichannel', desc: 'Customers can reach you through any channel. One inbox for everything.', color: 'text-indigo-500' },
-            ].map((feature) => (
-              <div key={feature.title} className="bg-slate-50 rounded-2xl p-6 border border-slate-100 hover:border-blue-100 hover:bg-blue-50/30 transition-colors">
-                <div className={`h-10 w-10 rounded-xl bg-white shadow-sm flex items-center justify-center mb-4 border border-slate-100`}>
-                  <feature.icon className={`h-5 w-5 ${feature.color}`} />
+
+          {/* Feature cards grid */}
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {features.map((feature) => (
+              <div
+                key={feature.title}
+                className={`group rounded-2xl border border-slate-100 bg-slate-50 p-6 ${feature.hoverBorder} ${feature.hoverBg} hover:shadow-sm`}
+              >
+                <div
+                  className={`mb-4 flex h-11 w-11 items-center justify-center rounded-xl ${feature.iconBg}`}
+                >
+                  <feature.icon className={`h-5 w-5 ${feature.iconColor}`} />
                 </div>
-                <h3 className="font-semibold text-slate-900 mb-2">{feature.title}</h3>
-                <p className="text-slate-600 text-sm leading-relaxed">{feature.desc}</p>
+                <h3 className="mb-2 font-semibold text-slate-900">{feature.title}</h3>
+                <p className="text-sm leading-relaxed text-slate-600">{feature.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-24 bg-blue-600">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">Ready to get started?</h2>
-          <p className="text-blue-100 text-lg mb-8">Join thousands of companies delivering great support with Resolv.</p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/help/tickets/new" className="inline-flex items-center justify-center gap-2 bg-white text-blue-600 px-8 py-4 rounded-xl text-lg font-semibold hover:bg-blue-50 transition-colors">
+      {/* ── CTA Section ── */}
+      <section className="relative overflow-hidden bg-gradient-to-r from-violet-600 to-purple-700 py-24">
+
+        {/* Decorative blobs */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+          <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-white/5 blur-3xl" />
+          <div className="absolute -bottom-16 left-16 h-56 w-56 rounded-full bg-purple-400/20 blur-2xl" />
+        </div>
+
+        <div className="relative mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
+          <h2 className="mb-4 text-3xl font-bold text-white sm:text-4xl">
+            Ready to get started?
+          </h2>
+          <p className="mb-10 text-lg text-violet-100">
+            Join thousands of companies delivering great support with Nexora&apos;s Support platform.
+          </p>
+          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
+            <Link
+              href="/help/tickets/new"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-8 py-4 text-lg font-semibold text-violet-600 shadow-lg shadow-violet-900/30 hover:bg-violet-50"
+            >
               Submit a Ticket <ArrowRight className="h-5 w-5" />
             </Link>
-            <Link href="/agent" className="inline-flex items-center justify-center gap-2 border-2 border-blue-400 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-blue-700 transition-colors">
+            <Link
+              href="/agent"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-violet-400/60 px-8 py-4 text-lg font-semibold text-white hover:border-white/70 hover:bg-violet-700"
+            >
               Agent Portal
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-slate-900 text-slate-400 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="flex items-center gap-2">
-            <div className="h-6 w-6 bg-blue-500 rounded flex items-center justify-center">
-              <Headphones className="h-4 w-4 text-white" />
+      {/* ── Footer ── */}
+      <footer className="bg-slate-950 py-12">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
+
+            {/* Brand mark */}
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-7 w-7 items-center justify-center rounded-md bg-violet-500">
+                <Headphones className="h-4 w-4 text-white" />
+              </div>
+              <span className="font-semibold text-white">Support</span>
+              <span className="text-sm text-slate-500">by Nexora</span>
             </div>
-            <span className="text-white font-semibold">Resolv</span>
-            <span className="text-slate-500 text-sm">by Nexora</span>
+
+            {/* Tagline */}
+            <p className="text-sm text-slate-500">Support by Nexora</p>
+
+            {/* Copyright */}
+            <p className="text-sm text-slate-500">
+              © 2025 Nexora Inc. All rights reserved.
+            </p>
           </div>
-          <p className="text-sm">© 2024 Nexora Inc. All rights reserved.</p>
         </div>
       </footer>
+
     </div>
   );
 }
