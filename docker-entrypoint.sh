@@ -5,7 +5,7 @@ echo "🚀 Support by Nexora - Starting..."
 
 # Run Prisma migrations/push
 echo "📦 Running database setup..."
-npx prisma db push --skip-generate 2>&1 || echo "DB push completed with warnings"
+./node_modules/.bin/prisma db push --skip-generate
 
 # Seed only if database is empty (check user count)
 USER_COUNT=$(node -e "

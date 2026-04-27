@@ -32,7 +32,7 @@ export default async function CustomerTicketDetailPage({ params }: { params: Pro
               <ArrowLeft className="h-4 w-4" />
             </Link>
             <Link href="/help" className="flex items-center gap-2 flex-shrink-0">
-              <div className="h-7 w-7 bg-violet-600 rounded-lg flex items-center justify-center">
+              <div className="h-7 w-7 bg-blue-600 rounded-lg flex items-center justify-center">
                 <Headphones className="h-4 w-4 text-white" />
               </div>
               <div className="hidden sm:flex flex-col leading-tight">
@@ -132,12 +132,12 @@ export default async function CustomerTicketDetailPage({ params }: { params: Pro
                     className={`rounded-2xl px-4 md:px-5 py-4 ${
                       isAgent
                         ? 'bg-white border border-slate-200 rounded-tl-sm shadow-sm'
-                        : 'bg-violet-600 rounded-tr-sm shadow-sm'
+                        : 'bg-blue-600 rounded-tr-sm shadow-sm'
                     }`}
                   >
-                    <div className={`text-xs font-semibold mb-2 ${isAgent ? 'text-violet-600' : 'text-violet-200'}`}>
+                    <div className={`text-xs font-semibold mb-2 ${isAgent ? 'text-blue-600' : 'text-blue-200'}`}>
                       {comment.author.name}
-                      <span className={`font-normal ml-1.5 ${isAgent ? 'text-slate-400' : 'text-violet-300'}`}>
+                      <span className={`font-normal ml-1.5 ${isAgent ? 'text-slate-400' : 'text-blue-300'}`}>
                         · {formatDate(comment.createdAt)}
                       </span>
                     </div>

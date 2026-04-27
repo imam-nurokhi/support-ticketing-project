@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   Search,
   PlusCircle,
@@ -45,13 +46,7 @@ export default async function HelpPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="h-16 flex items-center justify-between">
             <Link href="/help" className="flex items-center gap-2.5 flex-shrink-0">
-              <div className="h-8 w-8 bg-violet-600 rounded-xl flex items-center justify-center">
-                <Headphones className="h-4 w-4 text-white" />
-              </div>
-              <div className="flex flex-col leading-tight">
-                <span className="font-bold text-slate-900 text-sm leading-none">Support</span>
-                <span className="text-[10px] text-violet-600 font-medium leading-none">by Nexora</span>
-              </div>
+              <Image src="/nexora-logo.png" alt="Nexora" width={120} height={36} className="object-contain" />
             </Link>
 
             {/* Desktop nav */}
@@ -108,7 +103,7 @@ export default async function HelpPage() {
       </nav>
 
       {/* Hero */}
-      <section className="bg-gradient-to-br from-violet-700 via-violet-700 to-purple-800 text-white py-16 md:py-24 px-4">
+      <section className="bg-gradient-to-br from-blue-600 via-violet-600 to-amber-400 text-white py-16 md:py-24 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-violet-100 text-sm font-medium px-4 py-1.5 rounded-full mb-6 border border-white/20">
             <Headphones className="h-3.5 w-3.5" />
@@ -121,7 +116,7 @@ export default async function HelpPage() {
             <input
               type="text"
               placeholder="Search for answers… (e.g., reset password, billing, API)"
-              className="w-full pl-12 pr-4 py-4 rounded-2xl text-slate-900 text-base md:text-lg focus:outline-none focus:ring-4 focus:ring-violet-400/50 shadow-2xl"
+              className="w-full pl-12 pr-4 py-4 rounded-2xl text-slate-900 text-base md:text-lg focus:outline-none focus:ring-4 focus:ring-blue-400/50 shadow-2xl"
               aria-label="Search knowledge base"
             />
           </div>
@@ -191,15 +186,14 @@ export default async function HelpPage() {
             <div className="space-y-3">
               <Link
                 href="/help/tickets/new"
-                className="flex items-center gap-3 bg-violet-600 text-white p-4 rounded-2xl hover:bg-violet-700 transition-colors group"
+                className="flex items-center gap-3 bg-blue-600 text-white p-4 rounded-2xl hover:bg-blue-700 transition-colors group"
               >
                 <div className="h-10 w-10 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-white/25 transition-colors">
                   <PlusCircle className="h-5 w-5" />
                 </div>
                 <div>
                   <div className="font-semibold text-sm">Submit New Ticket</div>
-                  <div className="text-violet-200 text-xs">Get help from our team</div>
-                </div>
+                  <div className="text-violet-200 text-xs">Get help from our team</div>                </div>
               </Link>
               <Link
                 href="/help/tickets"

@@ -18,8 +18,8 @@ jobs:
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VPS_HOST }}
-          username: root
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASSWORD }}
           port: 22
           timeout: 300s
           script: |
@@ -32,7 +32,8 @@ jobs:
             # Clone or pull
             if [ -d ".git" ]; then
               echo "🔄 Pulling latest changes..."
-              git pull origin main
+              git fetch origin main
+              git reset --hard origin/main
             else
               echo "📥 Cloning repository..."
               git clone https://github.com/imam-nurokhi/support-ticketing-project.git .
@@ -41,11 +42,13 @@ jobs:
             echo "🐳 Building Docker image..."
             docker compose build --no-cache
 
-            echo "🚀 Starting containers..."
-            docker compose up -d
+            echo "🚀 Starting support container..."
+            docker compose up -d --no-deps support
 
-            echo "🧹 Cleaning up..."
-            docker system prune -f --volumes=false
+            echo "🔎 Checking support container..."
+            docker compose ps support
+            docker logs --tail=120 support
+            docker exec support wget -qO- http://127.0.0.1:3000/ >/dev/null
 
             echo "✅ Deployment complete!"
             docker ps | grep support

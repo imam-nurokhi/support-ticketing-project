@@ -93,7 +93,7 @@ export default function NewTicketForm({ initialDepartment }: { initialDepartment
         <div className="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
           <Link href="/help/tickets" className="flex items-center gap-2.5 text-slate-600 hover:text-slate-900 transition-colors">
             <ArrowLeft className="h-4 w-4" />
-            <div className="h-7 w-7 bg-violet-600 rounded-lg flex items-center justify-center">
+            <div className="h-7 w-7 bg-blue-600 rounded-lg flex items-center justify-center">
               <Headphones className="h-4 w-4 text-white" />
             </div>
             <div className="flex flex-col leading-tight">
@@ -114,20 +114,20 @@ export default function NewTicketForm({ initialDepartment }: { initialDepartment
                 <div
                   className={`h-9 w-9 rounded-full flex items-center justify-center text-sm font-semibold transition-all ${
                     s < step
-                      ? 'bg-violet-600 text-white'
+                      ? 'bg-blue-600 text-white'
                       : s === step
-                      ? 'bg-violet-600 text-white ring-4 ring-violet-100'
+                      ? 'bg-blue-600 text-white ring-4 ring-blue-100'
                       : 'bg-slate-200 text-slate-500'
                   }`}
                 >
                   {s < step ? <Check className="h-4 w-4" /> : s}
                 </div>
-                <span className={`text-xs font-medium hidden sm:block ${s === step ? 'text-violet-600' : 'text-slate-400'}`}>
+                <span className={`text-xs font-medium hidden sm:block ${s === step ? 'text-blue-600' : 'text-slate-400'}`}>
                   {stepLabels[s - 1]}
                 </span>
               </div>
               {s < 3 ? (
-                <div className={`w-16 md:w-24 h-0.5 mx-2 mb-5 transition-colors ${s < step ? 'bg-violet-600' : 'bg-slate-200'}`} />
+                <div className={`w-16 md:w-24 h-0.5 mx-2 mb-5 transition-colors ${s < step ? 'bg-blue-600' : 'bg-slate-200'}`} />
               ) : null}
             </div>
           ))}
@@ -147,13 +147,13 @@ export default function NewTicketForm({ initialDepartment }: { initialDepartment
                     onClick={() => setForm((current) => ({ ...current, department: dept.id }))}
                     className={`text-left p-4 rounded-xl border-2 transition-all hover:shadow-sm min-h-[88px] ${
                       form.department === dept.id
-                        ? 'border-violet-500 bg-violet-50'
-                        : 'border-slate-200 hover:border-violet-200 hover:bg-violet-50/30'
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-slate-200 hover:border-blue-200 hover:bg-blue-50/30'
                     }`}
                   >
                     <div
                       className={`h-8 w-8 rounded-lg flex items-center justify-center mb-2 transition-colors ${
-                        form.department === dept.id ? 'bg-violet-100' : 'bg-slate-100'
+                        form.department === dept.id ? 'bg-blue-100' : 'bg-slate-100'
                       }`}
                     >
                       <dept.icon className={`h-4 w-4 ${dept.iconClass}`} />
@@ -182,7 +182,7 @@ export default function NewTicketForm({ initialDepartment }: { initialDepartment
                     value={form.title}
                     onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))}
                     placeholder="Brief summary of your issue"
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent text-slate-900 placeholder-slate-400 transition-shadow"
+                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-slate-900 placeholder-slate-400 transition-shadow"
                   />
                   <p className="text-xs text-slate-400 mt-1.5">Minimum 5 characters · {form.title.length} typed</p>
                 </div>
@@ -196,7 +196,7 @@ export default function NewTicketForm({ initialDepartment }: { initialDepartment
                     onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))}
                     placeholder="Please provide detailed information, steps to reproduce, and any error messages."
                     rows={6}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent text-slate-900 placeholder-slate-400 resize-none transition-shadow"
+                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-slate-900 placeholder-slate-400 resize-none transition-shadow"
                   />
                   <p className="text-xs text-slate-400 mt-1.5">Minimum 10 characters · {form.description.length} typed</p>
                 </div>
@@ -217,13 +217,13 @@ export default function NewTicketForm({ initialDepartment }: { initialDepartment
                     onClick={() => setForm((current) => ({ ...current, priority: priority.id }))}
                     className={`w-full text-left py-4 px-5 rounded-xl border-2 transition-all flex items-center gap-4 ${
                       form.priority === priority.id
-                        ? 'border-violet-500 bg-violet-50'
-                        : 'border-slate-200 hover:border-violet-200 hover:bg-violet-50/20'
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-slate-200 hover:border-blue-200 hover:bg-blue-50/20'
                     }`}
                   >
                     <div
                       className={`h-9 w-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors ${
-                        form.priority === priority.id ? 'bg-violet-100' : 'bg-slate-100'
+                        form.priority === priority.id ? 'bg-blue-100' : 'bg-slate-100'
                       }`}
                     >
                       <priority.icon className={`h-4 w-4 ${priority.iconClass}`} />
@@ -233,7 +233,7 @@ export default function NewTicketForm({ initialDepartment }: { initialDepartment
                       <div className="text-slate-500 text-xs mt-0.5">{priority.desc}</div>
                     </div>
                     {form.priority === priority.id ? (
-                      <div className="h-5 w-5 rounded-full bg-violet-600 flex items-center justify-center flex-shrink-0">
+                      <div className="h-5 w-5 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
                         <Check className="h-3 w-3 text-white" />
                       </div>
                     ) : (
@@ -244,8 +244,8 @@ export default function NewTicketForm({ initialDepartment }: { initialDepartment
               </div>
 
               {/* Summary card */}
-              <div className="bg-violet-50 rounded-2xl p-4 border border-violet-100">
-                <div className="text-xs font-semibold text-violet-600 uppercase tracking-widest mb-3">Ticket Summary</div>
+              <div className="bg-blue-50 rounded-2xl p-4 border border-blue-100">
+                <div className="text-xs font-semibold text-blue-600 uppercase tracking-widest mb-3">Ticket Summary</div>
                 <div className="space-y-2 text-sm">
                   <div className="flex gap-2">
                     <span className="text-slate-500 w-20 flex-shrink-0">Category</span>
@@ -287,7 +287,7 @@ export default function NewTicketForm({ initialDepartment }: { initialDepartment
                 type="button"
                 onClick={() => setStep((current) => current + 1)}
                 disabled={!canContinue || pending}
-                className="flex items-center gap-2 bg-violet-600 text-white px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-violet-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm"
+                className="flex items-center gap-2 bg-blue-600 text-white px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm"
               >
                 Continue <ArrowRight className="h-4 w-4" />
               </button>

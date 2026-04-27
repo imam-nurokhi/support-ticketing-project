@@ -42,7 +42,7 @@ export default function ForgotPasswordPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-3 mb-6">
-            <div className="h-12 w-12 rounded-2xl bg-violet-600 flex items-center justify-center shadow-lg shadow-violet-500/30">
+            <div className="h-12 w-12 rounded-2xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
               <Headphones className="h-6 w-6 text-white" />
             </div>
             <div className="text-left">
@@ -86,7 +86,7 @@ export default function ForgotPasswordPage() {
                 {resetUrl && (
                   <Link
                     href={resetUrl}
-                    className="w-full flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-violet-700"
+                    className="w-full flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
                   >
                     Reset Password Now →
                   </Link>
@@ -126,7 +126,7 @@ export default function ForgotPasswordPage() {
               <button
                 type="submit"
                 disabled={pending || !email.trim()}
-                className="w-full flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-60"
+                className="w-full flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {pending ? (
                   <div className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
