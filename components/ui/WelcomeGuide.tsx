@@ -64,7 +64,7 @@ const CUSTOMER_STEPS: Step[] = [
     title: 'Email Notifications',
     description:
       'You\'ll receive email updates when your ticket is confirmed, replied to, or resolved — so you\'re always in the loop.',
-    tip: 'Make sure to whitelist notifications@nexoratech.co to avoid missing emails.',
+    tip: 'Make sure to whitelist the sender email from your settings to avoid missing email notifications.',
   },
 ];
 
