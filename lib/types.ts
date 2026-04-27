@@ -86,3 +86,14 @@ export interface DashboardSummary {
   byMonth: Array<{ month: string; label: string; count: number }>;
   topRequesters: Array<{ name: string; count: number }>;
 }
+
+export interface AgentPerformance {
+  id: string;
+  name: string;
+  email: string;
+  total: number;
+  closed: number;
+  open: number;
+  inProgress: number;
+  resolveRate: number;
+}

@@ -2,10 +2,11 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import {
   ArrowUpRight,
   BarChart3,
-  Headphones,
   Inbox,
   LayoutDashboard,
   LogOut,
@@ -27,11 +28,11 @@ interface AgentClientLayoutProps {
 }
 
 const navItems = [
-  { icon: LayoutDashboard, label: 'Dashboard', href: '/agent', active: true },
-  { icon: Inbox, label: 'All Tickets', href: '/agent', active: false },
-  { icon: Users, label: 'Customers', href: '/agent', active: false },
-  { icon: BarChart3, label: 'Reports', href: '/agent', active: false },
-  { icon: Settings, label: 'Settings', href: '/agent', active: false },
+  { icon: LayoutDashboard, label: 'Dashboard', href: '/agent' },
+  { icon: Inbox, label: 'All Tickets', href: '/agent/tickets' },
+  { icon: Users, label: 'Customers', href: '/agent/customers' },
+  { icon: BarChart3, label: 'Reports', href: '/agent/reports' },
+  { icon: Settings, label: 'Settings', href: '/agent/settings' },
 ];
 
 const filterTabs = ['All', 'Assigned to Me', 'Unassigned', 'Urgent'];
@@ -39,6 +40,7 @@ const filterTabs = ['All', 'Assigned to Me', 'Unassigned', 'Urgent'];
 export default function AgentClientLayout({ user, tickets, summary }: AgentClientLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState('All');
+  const pathname = usePathname();
 
   const initials = user.name
     .split(' ')
@@ -48,7 +50,7 @@ export default function AgentClientLayout({ user, tickets, summary }: AgentClien
     .toUpperCase();
 
   const statCards = [
-    { label: 'Open', value: summary.byStatus.open, color: 'text-violet-600', bg: 'bg-violet-50', border: 'border-violet-200' },
+    { label: 'Open', value: summary.byStatus.open, color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-200' },
     { label: 'In Progress', value: summary.byStatus.in_progress, color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-200' },
     { label: 'Waiting', value: summary.byStatus.pending, color: 'text-sky-600', bg: 'bg-sky-50', border: 'border-sky-200' },
     { label: 'Resolved', value: summary.byStatus.closed, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200' },
@@ -61,12 +63,10 @@ export default function AgentClientLayout({ user, tickets, summary }: AgentClien
       {/* Logo */}
       <div className="p-4 border-b border-slate-800 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <div className="h-8 w-8 bg-violet-600 rounded-lg flex items-center justify-center flex-shrink-0">
-            <Headphones className="h-4.5 w-4.5 text-white" />
-          </div>
+          <Image src="/nexora-logo.png" alt="Nexora" width={80} height={24} className="object-contain" />
           <div>
             <div className="font-bold text-white text-sm leading-tight">Support</div>
-            <div className="text-violet-400 text-xs">Agent Portal</div>
+            <div className="text-blue-400 text-xs">Agent Portal</div>
           </div>
         </div>
         <button
@@ -81,27 +81,33 @@ export default function AgentClientLayout({ user, tickets, summary }: AgentClien
 
       {/* Nav */}
       <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
-        {navItems.map((item) => (
-          <Link
-            key={item.label}
-            href={item.href}
-            onClick={() => setSidebarOpen(false)}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-              item.active
-                ? 'bg-violet-600 text-white shadow-sm'
-                : 'text-slate-400 hover:text-white hover:bg-slate-800'
-            }`}
-          >
-            <item.icon className="h-4 w-4 flex-shrink-0" />
-            {item.label}
-          </Link>
-        ))}
+        {navItems.map((item) => {
+            const isActive =
+              item.href === '/agent'
+                ? pathname === '/agent'
+                : pathname.startsWith(item.href);
+            return (
+              <Link
+                key={item.label}
+                href={item.href}
+                onClick={() => setSidebarOpen(false)}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                  isActive
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                }`}
+              >
+                <item.icon className="h-4 w-4 flex-shrink-0" />
+                {item.label}
+              </Link>
+            );
+          })}
       </nav>
 
       {/* User block */}
       <div className="p-3 border-t border-slate-800">
         <div className="flex items-center gap-2.5 px-2 py-2 rounded-lg">
-          <div className="h-8 w-8 bg-violet-600 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+          <div className="h-8 w-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
             {initials}
           </div>
           <div className="min-w-0">
@@ -180,7 +186,7 @@ export default function AgentClientLayout({ user, tickets, summary }: AgentClien
             </div>
             <Link
               href="/help/tickets/new"
-              className="flex-shrink-0 flex items-center gap-2 bg-violet-600 text-white px-3 sm:px-4 py-2 rounded-lg text-sm font-medium hover:bg-violet-700 active:bg-violet-800 transition-colors"
+              className="flex-shrink-0 flex items-center gap-2 bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 active:bg-blue-800 transition-colors"
             >
               New Ticket
             </Link>
@@ -210,7 +216,7 @@ export default function AgentClientLayout({ user, tickets, summary }: AgentClien
                     onClick={() => setActiveFilter(filter)}
                     className={`text-xs px-3 py-1.5 rounded-lg transition-colors font-medium ${
                       activeFilter === filter
-                        ? 'bg-violet-600 text-white shadow-sm'
+                        ? 'bg-blue-600 text-white shadow-sm'
                         : 'text-slate-600 hover:bg-slate-100 bg-slate-50'
                     }`}
                   >
@@ -236,7 +242,7 @@ export default function AgentClientLayout({ user, tickets, summary }: AgentClien
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {tickets.map((ticket) => (
-                    <tr key={ticket.id} className="hover:bg-violet-50/40 transition-colors group">
+                    <tr key={ticket.id} className="hover:bg-blue-50/40 transition-colors group">
                       <td className="px-4 sm:px-6 py-3.5 text-xs font-mono text-slate-400 whitespace-nowrap">
                         {ticket.ticketId}
                       </td>
@@ -265,7 +271,7 @@ export default function AgentClientLayout({ user, tickets, summary }: AgentClien
                       <td className="px-4 sm:px-6 py-3.5">
                         {ticket.assignee ? (
                           <div className="flex items-center gap-2">
-                            <div className="h-6 w-6 bg-violet-100 rounded-full flex items-center justify-center text-xs font-semibold text-violet-700 flex-shrink-0">
+                            <div className="h-6 w-6 bg-blue-100 rounded-full flex items-center justify-center text-xs font-semibold text-blue-700 flex-shrink-0">
                               {ticket.assignee.name.charAt(0)}
                             </div>
                             <span className="text-sm text-slate-700 truncate max-w-[100px]">
@@ -282,7 +288,7 @@ export default function AgentClientLayout({ user, tickets, summary }: AgentClien
                       <td className="px-4 sm:px-6 py-3.5">
                         <Link
                           href={`/agent/tickets/${ticket.id}`}
-                          className="text-slate-300 group-hover:text-violet-600 transition-colors"
+                          className="text-slate-300 group-hover:text-blue-600 transition-colors"
                           aria-label="Open ticket"
                         >
                           <ArrowUpRight className="h-4 w-4" />

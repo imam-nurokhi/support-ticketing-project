@@ -2,6 +2,7 @@ import type { Prisma } from '@prisma/client';
 import { db } from '@/lib/db';
 import type {
   AdminDashboardTicket,
+  AgentPerformance,
   DashboardSummary,
   Priority,
   SessionUser,
@@ -239,9 +240,45 @@ export async function getAdminDashboardData() {
 
   const serialized = tickets.map(serializeTicket);
 
+  // Agent performance: query all support agents and their ticket stats
+  const agents = await db.user.findMany({
+    where: { role: 'SUPPORT_AGENT' },
+    include: {
+      assignedTickets: { select: { status: true } },
+    },
+    orderBy: { name: 'asc' },
+  });
+
+  const agentPerformance: AgentPerformance[] = agents
+    .filter((a) => a.assignedTickets.length > 0)
+    .map((agent) => {
+      const total = agent.assignedTickets.length;
+      const closed = agent.assignedTickets.filter(
+        (t) => t.status === 'CLOSED' || t.status === 'RESOLVED',
+      ).length;
+      const inProgress = agent.assignedTickets.filter(
+        (t) => t.status === 'IN_PROGRESS',
+      ).length;
+      const open = agent.assignedTickets.filter(
+        (t) => t.status === 'OPEN',
+      ).length;
+      return {
+        id: agent.id,
+        name: agent.name,
+        email: agent.email,
+        total,
+        closed,
+        open,
+        inProgress,
+        resolveRate: total === 0 ? 0 : Number(((closed / total) * 100).toFixed(1)),
+      };
+    })
+    .sort((a, b) => b.total - a.total);
+
   return {
     tickets: serialized.map(toAdminDashboardTicket),
     summary: buildDashboardSummary(serialized),
     details: serialized,
+    agentPerformance,
   };
 }
