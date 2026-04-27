@@ -4,12 +4,19 @@ import { getCurrentUser } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { getAdminDashboardData, getAgentTickets, getCustomerTickets, serializeTicket, ticketInclude, toTicketId } from '@/lib/tickets';
 import { PRIORITIES } from '@/lib/types';
+import { sendTicketCreatedEmails } from '@/lib/email';
 
 const createTicketSchema = z.object({
   department: z.string().trim().min(2).max(60),
   title: z.string().trim().min(5).max(140),
   description: z.string().trim().min(10).max(5000),
   priority: z.enum(PRIORITIES),
+  attachments: z.array(z.object({
+    storedName: z.string(),
+    filename: z.string(),
+    mimeType: z.string(),
+    size: z.number(),
+  })).max(5).optional().default([]),
 });
 
 export async function GET() {
@@ -72,9 +79,30 @@ export async function POST(request: Request) {
           newValue: 'Ticket created',
         },
       },
+      attachments: payload.data.attachments.length > 0 ? {
+        create: payload.data.attachments.map((att) => ({
+          filename: att.filename,
+          storedName: att.storedName,
+          mimeType: att.mimeType,
+          size: att.size,
+          uploaderId: user.id,
+        })),
+      } : undefined,
     },
     include: ticketInclude,
   });
+
+  // Send email notifications asynchronously (don't block response)
+  sendTicketCreatedEmails({
+    ticketId: ticket.ticketId,
+    ticketDbId: ticket.id,
+    title: ticket.title,
+    department: ticket.department,
+    priority: ticket.priority,
+    status: ticket.status,
+    authorName: user.name,
+    authorEmail: user.email,
+  }).catch((err) => console.error('[Email] sendTicketCreatedEmails error:', err));
 
   return Response.json({ ticket: serializeTicket(ticket) }, { status: 201 });
 }

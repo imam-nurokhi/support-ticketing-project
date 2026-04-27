@@ -20,6 +20,7 @@ import {
   Users,
   Zap,
 } from 'lucide-react';
+import FileUploader, { type UploadedFile } from '@/components/ui/FileUploader';
 
 const departments = [
   { id: 'LMS', label: 'LMS (Learning Management)', desc: 'E-learning, course access, penilaian', icon: BookOpen, iconClass: 'text-violet-600' },
@@ -46,6 +47,7 @@ export default function NewTicketForm({ initialDepartment }: { initialDepartment
   const [error, setError] = useState('');
   const [pending, setPending] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [attachments, setAttachments] = useState<UploadedFile[]>([]);
   const [form, setForm] = useState({
     department: initialDepartment && departments.some((item) => item.id === initialDepartment) ? initialDepartment : '',
     title: '',
@@ -66,7 +68,7 @@ export default function NewTicketForm({ initialDepartment }: { initialDepartment
     const response = await fetch('/api/tickets', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
+      body: JSON.stringify({ ...form, attachments }),
     });
 
     const data = await response.json();
@@ -199,6 +201,12 @@ export default function NewTicketForm({ initialDepartment }: { initialDepartment
                     className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-slate-900 placeholder-slate-400 resize-none transition-shadow"
                   />
                   <p className="text-xs text-slate-400 mt-1.5">Minimum 10 characters · {form.description.length} typed</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                    Attachments <span className="text-slate-400 font-normal">(optional)</span>
+                  </label>
+                  <FileUploader onFilesChange={setAttachments} maxFiles={5} />
                 </div>
               </div>
             </div>

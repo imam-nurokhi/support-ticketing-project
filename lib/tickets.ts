@@ -3,6 +3,7 @@ import { db } from '@/lib/db';
 import type {
   AdminDashboardTicket,
   AgentPerformance,
+  AttachmentView,
   DashboardSummary,
   Priority,
   SessionUser,
@@ -16,6 +17,7 @@ export const ticketInclude = {
   comments: {
     include: {
       author: true,
+      attachments: true,
     },
     orderBy: {
       createdAt: 'asc',
@@ -29,6 +31,7 @@ export const ticketInclude = {
       createdAt: 'desc',
     },
   },
+  attachments: true,
 } satisfies Prisma.TicketInclude;
 
 export type TicketRecord = Prisma.TicketGetPayload<{ include: typeof ticketInclude }>;
@@ -72,6 +75,17 @@ export function formatStatusLabel(status: TicketStatus) {
   return status.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
+function serializeAttachment(attachment: { id: string; filename: string; storedName: string; mimeType: string; size: number; createdAt: Date }): AttachmentView {
+  return {
+    id: attachment.id,
+    filename: attachment.filename,
+    storedName: attachment.storedName,
+    mimeType: attachment.mimeType,
+    size: attachment.size,
+    createdAt: attachment.createdAt.toISOString(),
+  };
+}
+
 function serializeUser(user: TicketRecord['author']): SessionUser {
   return {
     id: user.id,
@@ -107,6 +121,7 @@ export function serializeTicket(ticket: TicketRecord): TicketView {
       isInternalNote: comment.isInternalNote,
       createdAt: comment.createdAt.toISOString(),
       author: serializeUser(comment.author),
+      attachments: comment.attachments.map(serializeAttachment),
     })),
     auditLogs: ticket.auditLogs.map((log) => ({
       id: log.id,
@@ -116,6 +131,7 @@ export function serializeTicket(ticket: TicketRecord): TicketView {
       createdAt: log.createdAt.toISOString(),
       user: serializeUser(log.user),
     })),
+    attachments: ticket.attachments.map(serializeAttachment),
     latestReply: latestPublicReply,
     preview: (latestPublicReply ?? ticket.description).slice(0, 180),
   };

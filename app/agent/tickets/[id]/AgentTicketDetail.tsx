@@ -8,6 +8,8 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { PriorityBadge } from '@/components/ui/PriorityBadge';
 import { formatDate } from '@/lib/utils';
 import type { SessionUser, TicketStatus, TicketView } from '@/lib/types';
+import FileUploader, { type UploadedFile } from '@/components/ui/FileUploader';
+import AttachmentList from '@/components/ui/AttachmentList';
 
 const statusOptions: { value: string; label: string }[] = [
   { value: 'open', label: 'Open' },
@@ -52,6 +54,7 @@ export default function AgentTicketDetail({
   const [status, setStatus] = useState<TicketStatus>(ticket.status);
   const [assigneeId, setAssigneeId] = useState<string | null>(ticket.assignee?.id ?? null);
   const [message, setMessage] = useState('');
+  const [attachments, setAttachments] = useState<UploadedFile[]>([]);
   const [isInternalNote, setIsInternalNote] = useState(false);
   const [replying, setReplying] = useState(false);
   const [statusPending, setStatusPending] = useState(false);
@@ -116,7 +119,7 @@ export default function AgentTicketDetail({
     const response = await fetch(`/api/tickets/${ticket.id}/comments`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message, isInternalNote }),
+      body: JSON.stringify({ message, isInternalNote, attachments }),
     });
 
     const data = await response.json();
@@ -128,6 +131,7 @@ export default function AgentTicketDetail({
     }
 
     setMessage('');
+    setAttachments([]);
     setIsInternalNote(false);
     router.refresh();
   }
@@ -216,6 +220,7 @@ export default function AgentTicketDetail({
                           }`}
                         >
                           {comment.message}
+                          <AttachmentList attachments={comment.attachments} dark={false} />
                         </div>
                       </div>
                     </div>
@@ -238,6 +243,7 @@ export default function AgentTicketDetail({
                       : 'border-slate-200 bg-white text-slate-700 focus:ring-blue-500'
                   }`}
                 />
+                <FileUploader onFilesChange={setAttachments} maxFiles={5} className="mt-3" />
                 {error && (
                   <div className="mt-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
                     {error}

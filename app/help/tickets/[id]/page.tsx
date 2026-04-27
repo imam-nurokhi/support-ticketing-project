@@ -8,6 +8,7 @@ import { requireUser } from '@/lib/auth';
 import { getTicketForCustomer } from '@/lib/tickets';
 import { ArrowLeft, CheckCircle2, Headphones, PlusCircle } from 'lucide-react';
 import TicketReplyForm from './TicketReplyForm';
+import AttachmentList from '@/components/ui/AttachmentList';
 
 export default async function CustomerTicketDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await requireUser(['CUSTOMER'], '/help/tickets');
@@ -144,6 +145,7 @@ export default async function CustomerTicketDetailPage({ params }: { params: Pro
                     <p className={`text-sm leading-relaxed whitespace-pre-wrap ${isAgent ? 'text-slate-700' : 'text-white'}`}>
                       {comment.message}
                     </p>
+                    <AttachmentList attachments={comment.attachments} dark={!isAgent} />
                   </div>
                 </div>
               </div>

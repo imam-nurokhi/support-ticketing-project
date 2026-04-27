@@ -1,6 +1,7 @@
 import { getCurrentUser } from '@/lib/auth';
 import { db } from '@/lib/db';
 import type { TicketStatus } from '@/lib/types';
+import { sendStatusChangedEmails } from '@/lib/email';
 
 const statusMap: Record<string, TicketStatus> = {
   open: 'OPEN',
@@ -27,7 +28,10 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
   const { id } = await context.params;
   const prismaStatus = statusMap[status];
 
-  const existingTicket = await db.ticket.findUnique({ where: { id } });
+  const existingTicket = await db.ticket.findUnique({
+    where: { id },
+    include: { author: true, assignee: true },
+  });
 
   if (!existingTicket) {
     return Response.json({ error: 'Ticket not found.' }, { status: 404 });
@@ -52,6 +56,20 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
       },
     },
   });
+
+  // Send email notification asynchronously
+  sendStatusChangedEmails({
+    ticketId: existingTicket.ticketId,
+    ticketDbId: existingTicket.id,
+    title: existingTicket.title,
+    oldStatus: existingTicket.status,
+    newStatus: prismaStatus,
+    changedByName: user.name,
+    customerName: existingTicket.author.name,
+    customerEmail: existingTicket.author.email,
+    assigneeName: existingTicket.assignee?.name ?? null,
+    assigneeEmail: existingTicket.assignee?.email ?? null,
+  }).catch((err) => console.error('[Email] sendStatusChangedEmails error:', err));
 
   return Response.json({ success: true });
 }
