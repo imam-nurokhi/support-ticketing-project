@@ -3,7 +3,8 @@ node_modules
 .git
 *.db
 *.db-journal
-prisma/data
+prisma/data/*
+!prisma/data/tickets.rtf
 prisma/dev.db
 .env*
 !.env.example
