@@ -261,6 +261,14 @@ export default function LoginForm({ nextPath }: { nextPath?: string }) {
               </li>
             </ul>
           </div>
+
+          {/* Register link */}
+          <p className="mt-4 text-center text-sm text-slate-500">
+            Don&apos;t have an account?{' '}
+            <a href="/register" className="font-medium text-blue-600 hover:text-blue-700">
+              Create one here
+            </a>
+          </p>
         </div>
       </div>
 

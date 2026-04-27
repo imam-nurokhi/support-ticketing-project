@@ -115,6 +115,12 @@ export default function HomePage() {
                 Sign In
               </Link>
               <Link
+                href="/register"
+                className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-violet-50 hover:text-violet-700"
+              >
+                Sign Up
+              </Link>
+              <Link
                 href="/help/tickets/new"
                 className="ml-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
               >
@@ -162,6 +168,13 @@ export default function HomePage() {
                 className="rounded-lg px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-violet-50 hover:text-violet-700"
               >
                 Sign In
+              </Link>
+              <Link
+                href="/register"
+                onClick={() => setMobileMenuOpen(false)}
+                className="rounded-lg px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-violet-50 hover:text-violet-700"
+              >
+                Sign Up
               </Link>
               <Link
                 href="/help/tickets/new"

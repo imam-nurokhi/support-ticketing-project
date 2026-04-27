@@ -134,20 +134,22 @@ async function main() {
     process.env.SOURCE_DATA_PATH ??
     path.resolve(__dirname, 'data', 'tickets.rtf');
 
-  if (!fs.existsSync(rtfPath)) {
-    throw new Error(
-      `Source data not found at: ${rtfPath}\n` +
-      `Copy the RTF data file to prisma/data/tickets.rtf and re-run.`
-    );
+  const hasRtfData = fs.existsSync(rtfPath);
+
+  if (!hasRtfData) {
+    console.log(`ℹ️  No RTF source data found at: ${rtfPath}`);
+    console.log(`   Running in demo-only mode (no ticket import).`);
   }
 
-  console.log(`Parsing ticket data from: ${rtfPath}`);
-  const rawTickets = loadTicketsFromRtf(rtfPath);
-  console.log(`Loaded ${rawTickets.length} tickets from source`);
+  const rawTickets = hasRtfData ? loadTicketsFromRtf(rtfPath) : [];
 
-  const statusCounts = {};
-  for (const t of rawTickets) statusCounts[t.status] = (statusCounts[t.status] || 0) + 1;
-  console.log('Status distribution:', statusCounts);
+  if (hasRtfData) {
+    console.log(`Parsing ticket data from: ${rtfPath}`);
+    console.log(`Loaded ${rawTickets.length} tickets from source`);
+    const statusCounts = {};
+    for (const t of rawTickets) statusCounts[t.status] = (statusCounts[t.status] || 0) + 1;
+    console.log('Status distribution:', statusCounts);
+  }
 
   // ── Wipe in dependency order ──────────────────────────────────────
   await prisma.passwordResetToken.deleteMany();
@@ -204,126 +206,142 @@ async function main() {
   const usersByExternalId = new Map();
   const DEMO_CUSTOMER_EMAIL = 'customer@nexora.local';
 
-  const ticketCountByUser = {};
-  for (const ticket of rawTickets) {
-    if (ticket.user?.id) ticketCountByUser[ticket.user.id] = (ticketCountByUser[ticket.user.id] || 0) + 1;
-  }
-  const demoCustomerId = parseInt(
-    Object.entries(ticketCountByUser).sort(([, a], [, b]) => b - a)[0]?.[0] ?? '0', 10
-  );
-  console.log('Demo customer external ID:', demoCustomerId);
+  if (hasRtfData && rawTickets.length > 0) {
+    const ticketCountByUser = {};
+    for (const ticket of rawTickets) {
+      if (ticket.user?.id) ticketCountByUser[ticket.user.id] = (ticketCountByUser[ticket.user.id] || 0) + 1;
+    }
+    const demoCustomerId = parseInt(
+      Object.entries(ticketCountByUser).sort(([, a], [, b]) => b - a)[0]?.[0] ?? '0', 10
+    );
+    console.log('Demo customer external ID:', demoCustomerId);
 
-  for (const ticket of rawTickets) {
-    const sourceUser = ticket.user;
-    if (!sourceUser || usersByExternalId.has(sourceUser.id)) continue;
-    // Skip IDs that are already created as agents
-    if (agentSourceIds.has(sourceUser.id)) continue;
+    for (const ticket of rawTickets) {
+      const sourceUser = ticket.user;
+      if (!sourceUser || usersByExternalId.has(sourceUser.id)) continue;
+      // Skip IDs that are already created as agents
+      if (agentSourceIds.has(sourceUser.id)) continue;
 
-    const isDemoCustomer = sourceUser.id === demoCustomerId;
-    const displayName = sourceUser.display_name || `User-${sourceUser.id}`;
+      const isDemoCustomer = sourceUser.id === demoCustomerId;
+      const displayName = sourceUser.display_name || `User-${sourceUser.id}`;
 
-    const user = await prisma.user.create({
+      const user = await prisma.user.create({
+        data: {
+          externalUserId: sourceUser.id,
+          email: isDemoCustomer
+            ? DEMO_CUSTOMER_EMAIL
+            : `${slugify(displayName)}.${sourceUser.id}@imported.local`,
+          name: displayName,
+          role: 'CUSTOMER',
+          avatarUrl: sourceUser.avatar || null,
+          passwordHash: isDemoCustomer ? hashPassword('Customer123!') : null,
+        },
+      });
+
+      usersByExternalId.set(sourceUser.id, user);
+    }
+
+    console.log(`Created ${usersByExternalId.size} customer accounts`);
+  } else {
+    // No RTF data — create a standalone demo customer account
+    const demoCustomer = await prisma.user.create({
       data: {
-        externalUserId: sourceUser.id,
-        email: isDemoCustomer
-          ? DEMO_CUSTOMER_EMAIL
-          : `${slugify(displayName)}.${sourceUser.id}@imported.local`,
-        name: displayName,
+        email: DEMO_CUSTOMER_EMAIL,
+        name: 'Demo Customer',
         role: 'CUSTOMER',
-        avatarUrl: sourceUser.avatar || null,
-        passwordHash: isDemoCustomer ? hashPassword('Customer123!') : null,
+        passwordHash: hashPassword('Customer123!'),
       },
     });
-
-    usersByExternalId.set(sourceUser.id, user);
+    usersByExternalId.set('demo', demoCustomer);
+    console.log('Created demo customer:', demoCustomer.email);
   }
-
-  console.log(`Created ${usersByExternalId.size} customer accounts`);
 
   // ── Import tickets ────────────────────────────────────────────────
   let imported = 0, skipped = 0;
 
-  for (const ticket of rawTickets) {
-    // Author may be a customer OR an agent who also submits tickets
-    const author =
-      usersByExternalId.get(ticket.user?.id) ??
-      agentsBySourceId.get(ticket.user?.id);
-    if (!author) { skipped++; continue; }
+  if (hasRtfData) {
+    for (const ticket of rawTickets) {
+      // Author may be a customer OR an agent who also submits tickets
+      const author =
+        usersByExternalId.get(ticket.user?.id) ??
+        agentsBySourceId.get(ticket.user?.id);
+      if (!author) { skipped++; continue; }
 
-    const latestReplyBody = stripHtml(ticket.latest_reply?.body);
-    const description = latestReplyBody || ticket.subject || 'Imported support ticket.';
-    const status = mapStatus(ticket.status);
+      const latestReplyBody = stripHtml(ticket.latest_reply?.body);
+      const description = latestReplyBody || ticket.subject || 'Imported support ticket.';
+      const status = mapStatus(ticket.status);
 
-    const assigneeUser = ticket.assigned_to
-      ? (agentsBySourceId.get(ticket.assigned_to) ?? primaryAgent)
-      : null;
+      const assigneeUser = ticket.assigned_to
+        ? (agentsBySourceId.get(ticket.assigned_to) ?? primaryAgent)
+        : null;
 
-    const createdAt = ticket.created_at ? new Date(ticket.created_at) : new Date();
-    const updatedAt = ticket.updated_at ? new Date(ticket.updated_at) : createdAt;
-    const closedAt  = ticket.closed_at  ? new Date(ticket.closed_at)  : null;
+      const createdAt = ticket.created_at ? new Date(ticket.created_at) : new Date();
+      const updatedAt = ticket.updated_at ? new Date(ticket.updated_at) : createdAt;
+      const closedAt  = ticket.closed_at  ? new Date(ticket.closed_at)  : null;
 
-    const isCustomerReply =
-      !ticket.latest_reply?.user_id || ticket.latest_reply.user_id === ticket.user?.id;
-    const replyAuthor = isCustomerReply ? author : (assigneeUser ?? admin);
+      const isCustomerReply =
+        !ticket.latest_reply?.user_id || ticket.latest_reply.user_id === ticket.user?.id;
+      const replyAuthor = isCustomerReply ? author : (assigneeUser ?? admin);
 
-    const rawCategory = ticket.tags?.[0]?.display_name || ticket.tags?.[0]?.name || null;
-    const department = rawCategory ? normalizeCategory(rawCategory) : 'General';
+      const rawCategory = ticket.tags?.[0]?.display_name || ticket.tags?.[0]?.name || null;
+      const department = rawCategory ? normalizeCategory(rawCategory) : 'General';
 
-    await prisma.ticket.create({
-      data: {
-        ticketId:           toTicketId(ticket.id),
-        sourceId:           ticket.id,
-        sourceSystem:       'ticket-dashboard',
-        title:              ticket.subject || `Ticket #${ticket.id}`,
-        description,
-        status,
-        priority:           mapPriority(ticket),
-        department,
-        requesterAvatarUrl: ticket.user?.avatar || null,
-        authorId:           author.id,
-        assigneeId:         assigneeUser?.id ?? null,
-        createdAt,
-        updatedAt,
-        closedAt,
-        comments: latestReplyBody
-          ? {
-              create: {
-                authorId:       replyAuthor.id,
-                message:        latestReplyBody,
-                isInternalNote: false,
-                createdAt:      ticket.latest_reply?.created_at
-                                  ? new Date(ticket.latest_reply.created_at)
-                                  : createdAt,
+      await prisma.ticket.create({
+        data: {
+          ticketId:           toTicketId(ticket.id),
+          sourceId:           ticket.id,
+          sourceSystem:       'ticket-dashboard',
+          title:              ticket.subject || `Ticket #${ticket.id}`,
+          description,
+          status,
+          priority:           mapPriority(ticket),
+          department,
+          requesterAvatarUrl: ticket.user?.avatar || null,
+          authorId:           author.id,
+          assigneeId:         assigneeUser?.id ?? null,
+          createdAt,
+          updatedAt,
+          closedAt,
+          comments: latestReplyBody
+            ? {
+                create: {
+                  authorId:       replyAuthor.id,
+                  message:        latestReplyBody,
+                  isInternalNote: false,
+                  createdAt:      ticket.latest_reply?.created_at
+                                    ? new Date(ticket.latest_reply.created_at)
+                                    : createdAt,
+                },
+              }
+            : undefined,
+          auditLogs: {
+            create: [
+              {
+                userId:   admin.id,
+                action:   'IMPORTED',
+                newValue: `Imported from ticket-dashboard #${ticket.id} (${ticket.status})`,
+                createdAt,
               },
-            }
-          : undefined,
-        auditLogs: {
-          create: [
-            {
-              userId:   admin.id,
-              action:   'IMPORTED',
-              newValue: `Imported from ticket-dashboard #${ticket.id} (${ticket.status})`,
-              createdAt,
-            },
-            ...(assigneeUser ? [{
-              userId:   admin.id,
-              action:   'ASSIGNED',
-              newValue: assigneeUser.name,
-              createdAt: updatedAt,
-            }] : []),
-            ...(closedAt && status === 'CLOSED' ? [{
-              userId:   admin.id,
-              action:   'STATUS_CHANGED',
-              oldValue: 'OPEN',
-              newValue: 'CLOSED',
-              createdAt: closedAt,
-            }] : []),
-          ],
+              ...(assigneeUser ? [{
+                userId:   admin.id,
+                action:   'ASSIGNED',
+                newValue: assigneeUser.name,
+                createdAt: updatedAt,
+              }] : []),
+              ...(closedAt && status === 'CLOSED' ? [{
+                userId:   admin.id,
+                action:   'STATUS_CHANGED',
+                oldValue: 'OPEN',
+                newValue: 'CLOSED',
+                createdAt: closedAt,
+              }] : []),
+            ],
+          },
         },
-      },
-    });
+      });
 
-    imported++;
+      imported++;
+    }
   }
 
   console.log(`\n✅ Seed complete:`);
