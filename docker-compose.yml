@@ -1,0 +1,45 @@
+services:
+  support:
+    build: .
+    container_name: support
+    restart: always
+
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=file:/data/prod.db
+
+    volumes:
+      - support-data:/data
+
+    networks:
+      - web
+
+    labels:
+      - "traefik.enable=true"
+
+      # SERVICE
+      - "traefik.http.services.support.loadbalancer.server.port=3000"
+
+      # HTTPS ROUTER
+      - "traefik.http.routers.support.rule=Host(`support.nexoratech.co`)"
+      - "traefik.http.routers.support.entrypoints=websecure"
+      - "traefik.http.routers.support.tls=true"
+      - "traefik.http.routers.support.tls.certresolver=myresolver"
+      - "traefik.http.routers.support.service=support"
+      - "traefik.http.routers.support.priority=100"
+
+      # HTTP → HTTPS REDIRECT
+      - "traefik.http.routers.support-http.rule=Host(`support.nexoratech.co`)"
+      - "traefik.http.routers.support-http.entrypoints=web"
+      - "traefik.http.routers.support-http.middlewares=support-https-redirect"
+
+      # MIDDLEWARE
+      - "traefik.http.middlewares.support-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.support-https-redirect.redirectscheme.permanent=true"
+
+volumes:
+  support-data:
+
+networks:
+  web:
+    external: true

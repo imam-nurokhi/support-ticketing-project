@@ -3,11 +3,15 @@
 :root {
   --background: #fafafa;
   --foreground: #0f172a;
-  --nexora-50: #f5f3ff;
-  --nexora-100: #ede9fe;
-  --nexora-500: #8b5cf6;
-  --nexora-600: #7c3aed;
-  --nexora-700: #6d28d9;
+  --nexora-primary: #2563EB;
+  --nexora-primary-dark: #1D4ED8;
+  --nexora-accent: #7C3AED;
+  --nexora-gold: #D97706;
+  --nexora-50: #eff6ff;
+  --nexora-100: #dbeafe;
+  --nexora-500: #3b82f6;
+  --nexora-600: #2563eb;
+  --nexora-700: #1d4ed8;
 }
 
 @theme inline {
@@ -26,8 +30,8 @@ body {
 /* Custom scrollbar */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #ddd6fe; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #8b5cf6; }
+::-webkit-scrollbar-thumb { background: #bfdbfe; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #3b82f6; }
 
 /* Smooth transitions */
 * { transition-property: color, background-color, border-color; transition-timing-function: cubic-bezier(0.4,0,0.2,1); transition-duration: 150ms; }

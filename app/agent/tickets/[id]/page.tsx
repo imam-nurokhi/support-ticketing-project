@@ -1,12 +1,22 @@
-import { notFound } from 'next/navigation';
+import { redirect, notFound } from 'next/navigation';
 import AgentTicketDetail from './AgentTicketDetail';
-import { requireUser } from '@/lib/auth';
-import { getTicketForStaff } from '@/lib/tickets';
+import { getCurrentUser } from '@/lib/auth';
+import { getTicketById } from '@/lib/tickets';
 
 export default async function AgentTicketDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const user = await requireUser(['SUPPORT_AGENT', 'ADMIN'], '/agent');
+  const user = await getCurrentUser();
+
+  if (!user) {
+    redirect('/login');
+  }
+
+  if (user.role === 'CUSTOMER') {
+    redirect('/');
+  }
+
   const { id } = await params;
-  const ticket = await getTicketForStaff(id);
+  const ticket = await getTicketById(id);
   if (!ticket) notFound();
+
   return <AgentTicketDetail ticket={ticket} currentUser={user} />;
 }

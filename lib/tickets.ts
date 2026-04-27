@@ -232,6 +232,15 @@ export async function getTicketForStaff(ticketId: string) {
   return ticket ? serializeTicket(ticket) : null;
 }
 
+export async function getTicketById(id: string) {
+  const ticket = await db.ticket.findUnique({
+    where: { id },
+    include: ticketInclude,
+  });
+
+  return ticket ? serializeTicket(ticket) : null;
+}
+
 export async function getAdminDashboardData() {
   const tickets = await db.ticket.findMany({
     include: ticketInclude,
