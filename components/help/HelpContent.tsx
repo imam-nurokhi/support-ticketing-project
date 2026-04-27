@@ -130,9 +130,9 @@ export default function HelpContent({ faqs, categories }: HelpContentProps) {
           <h2 className="text-xl font-bold text-slate-900 mb-6">Frequently Asked Questions</h2>
           {filteredFaqs.length > 0 ? (
             <div className="space-y-3">
-              {filteredFaqs.map((faq, i) => (
+              {filteredFaqs.map((faq) => (
                 <details
-                  key={i}
+                  key={faq.q}
                   className="bg-white rounded-2xl border border-slate-200 overflow-hidden group open:border-violet-200 transition-colors"
                 >
                   <summary className="flex items-center justify-between p-5 cursor-pointer hover:bg-violet-50/40 transition-colors list-none select-none">
