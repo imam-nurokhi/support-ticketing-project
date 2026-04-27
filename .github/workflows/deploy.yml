@@ -1,4 +1,4 @@
-name: 🚀 Deploy Support App
+name: Support CI
 
 on:
   push:
@@ -6,49 +6,25 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy:
-    name: Deploy to VPS
+  verify:
+    name: Verify
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📦 Checkout
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: 🚀 Deploy via SSH
-        uses: appleboy/ssh-action@v1.0.3
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          password: ${{ secrets.VPS_PASSWORD }}
-          port: 22
-          timeout: 300s
-          script: |
-            set -e
+          node-version: 20
+          cache: npm
 
-            echo "📁 Setting up deployment directory..."
-            mkdir -p ~/nexora-node/apps/support
-            cd ~/nexora-node/apps/support
+      - name: Install dependencies
+        run: npm ci
 
-            # Clone or pull
-            if [ -d ".git" ]; then
-              echo "🔄 Pulling latest changes..."
-              git fetch origin main
-              git reset --hard origin/main
-            else
-              echo "📥 Cloning repository..."
-              git clone https://github.com/imam-nurokhi/support-ticketing-project.git .
-            fi
+      - name: Lint
+        run: npm run lint
 
-            echo "🐳 Building Docker image..."
-            docker compose build --no-cache
-
-            echo "🚀 Starting support container..."
-            docker compose up -d --no-deps support
-
-            echo "🔎 Checking support container..."
-            docker compose ps support
-            docker logs --tail=120 support
-            docker exec support wget -qO- http://127.0.0.1:3000/ >/dev/null
-
-            echo "✅ Deployment complete!"
-            docker ps | grep support
+      - name: Build
+        run: npm run build
