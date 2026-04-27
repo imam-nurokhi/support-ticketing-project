@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   ArrowRight,
   Headphones,
@@ -89,12 +90,8 @@ export default function HomePage() {
           <div className="flex h-16 items-center justify-between">
 
             {/* Logo */}
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-600">
-                <Headphones className="h-4 w-4 text-white" />
-              </div>
-              <span className="text-xl font-bold text-slate-800">Support</span>
-              <span className="ml-0.5 text-sm text-slate-400">by Nexora</span>
+            <div className="flex items-center">
+              <Image src="/nexora-logo.png" alt="Nexora" width={120} height={36} className="object-contain" />
             </div>
 
             {/* Desktop nav links */}
@@ -119,7 +116,7 @@ export default function HomePage() {
               </Link>
               <Link
                 href="/help/tickets/new"
-                className="ml-2 rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:bg-violet-700"
+                className="ml-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
               >
                 Submit Ticket
               </Link>
@@ -169,7 +166,7 @@ export default function HomePage() {
               <Link
                 href="/help/tickets/new"
                 onClick={() => setMobileMenuOpen(false)}
-                className="mt-1 rounded-lg bg-violet-600 px-3 py-2.5 text-sm font-medium text-white hover:bg-violet-700"
+                className="mt-1 rounded-lg bg-blue-600 px-3 py-2.5 text-sm font-medium text-white hover:bg-blue-700"
               >
                 Submit Ticket
               </Link>
@@ -179,7 +176,7 @@ export default function HomePage() {
       </nav>
 
       {/* ── Hero Section ── */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-violet-600 via-purple-600 to-violet-700 pb-0 pt-20">
+      <section className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-violet-600 to-amber-400 pb-0 pt-20">
 
         {/* Decorative background blobs */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
@@ -213,7 +210,7 @@ export default function HomePage() {
           <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
               href="/help/tickets/new"
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-8 py-4 text-lg font-semibold text-violet-600 shadow-lg shadow-violet-900/30 hover:bg-violet-50"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-8 py-4 text-lg font-semibold text-blue-600 shadow-lg shadow-blue-900/30 hover:bg-blue-50"
             >
               Submit a Ticket <ArrowRight className="h-5 w-5" />
             </Link>
@@ -279,7 +276,7 @@ export default function HomePage() {
       </section>
 
       {/* ── CTA Section ── */}
-      <section className="relative overflow-hidden bg-gradient-to-r from-violet-600 to-purple-700 py-24">
+      <section className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-violet-600 to-amber-400 py-24">
 
         {/* Decorative blobs */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
@@ -297,13 +294,13 @@ export default function HomePage() {
           <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
               href="/help/tickets/new"
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-8 py-4 text-lg font-semibold text-violet-600 shadow-lg shadow-violet-900/30 hover:bg-violet-50"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-8 py-4 text-lg font-semibold text-blue-600 shadow-lg shadow-blue-900/30 hover:bg-blue-50"
             >
               Submit a Ticket <ArrowRight className="h-5 w-5" />
             </Link>
             <Link
               href="/agent"
-              className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-violet-400/60 px-8 py-4 text-lg font-semibold text-white hover:border-white/70 hover:bg-violet-700"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-white/40 px-8 py-4 text-lg font-semibold text-white hover:border-white/70 hover:bg-white/10"
             >
               Agent Portal
             </Link>

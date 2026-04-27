@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Headphones, ShieldCheck, UserCog, UserRound, Sparkles } from 'lucide-react';
+import Image from 'next/image';
+import { ShieldCheck, UserCog, UserRound, Sparkles } from 'lucide-react';
 
 const demoAccounts = [
   { label: 'Admin',    email: 'admin@nexora.local',    password: 'Admin123!',    icon: UserCog    },
@@ -58,14 +59,8 @@ export default function LoginForm({ nextPath }: { nextPath?: string }) {
         <div className="relative z-10 flex flex-col">
 
           {/* Logo */}
-          <div className="mb-12 flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-violet-600">
-              <Headphones className="h-6 w-6 text-white" />
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-white">Support</div>
-              <div className="text-sm text-violet-300">by Nexora</div>
-            </div>
+          <div className="mb-12">
+            <Image src="/nexora-logo.png" alt="Nexora" width={120} height={36} className="object-contain" />
           </div>
 
           {/* Main headline */}
@@ -123,12 +118,8 @@ export default function LoginForm({ nextPath }: { nextPath?: string }) {
         <div className="w-full max-w-md">
 
           {/* Mobile-only logo (hidden on lg since left panel shows it) */}
-          <div className="mb-8 flex items-center gap-2.5 lg:hidden">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-600">
-              <Headphones className="h-5 w-5 text-white" />
-            </div>
-            <span className="text-xl font-bold text-slate-800">Support</span>
-            <span className="text-sm text-slate-400">by Nexora</span>
+          <div className="mb-8 lg:hidden">
+            <Image src="/nexora-logo.png" alt="Nexora" width={120} height={36} className="object-contain" />
           </div>
 
           {/* Form heading */}
@@ -177,7 +168,7 @@ export default function LoginForm({ nextPath }: { nextPath?: string }) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
-                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20"
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
               />
             </div>
 
@@ -197,7 +188,7 @@ export default function LoginForm({ nextPath }: { nextPath?: string }) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20"
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
               />
             </div>
 
@@ -212,7 +203,7 @@ export default function LoginForm({ nextPath }: { nextPath?: string }) {
             <button
               type="submit"
               disabled={pending}
-              className="w-full rounded-xl bg-violet-600 px-4 py-3 text-sm font-semibold text-white hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-60"
+              className="w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {pending ? (
                 <span className="inline-flex items-center justify-center gap-2">
