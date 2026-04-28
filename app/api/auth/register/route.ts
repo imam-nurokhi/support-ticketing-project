@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { hashPassword } from '@/lib/password';
 import { createSession, setSessionCookie } from '@/lib/auth';
+import { buildSupportSignupAlertEmail, buildWelcomeEmail } from '@/lib/email-templates';
+import { getAppBaseUrl, getSupportNotificationEmail, isMailConfigured, sendEmail } from '@/lib/email';
 
 export async function POST(request: NextRequest) {
   let body: unknown;
@@ -40,5 +42,36 @@ export async function POST(request: NextRequest) {
   const { token, expiresAt } = await createSession(user.id);
   await setSessionCookie(token, expiresAt);
 
-  return NextResponse.json({ redirectTo: '/help' }, { status: 201 });
+  let warning: string | undefined;
+  if (isMailConfigured()) {
+    const loginUrl = `${getAppBaseUrl()}/login`;
+    try {
+      const welcomeEmail = buildWelcomeEmail({ name: user.name, loginUrl });
+      const supportEmail = buildSupportSignupAlertEmail({
+        name: user.name,
+        email: user.email,
+        loginUrl,
+      });
+
+      await Promise.all([
+        sendEmail({
+          to: user.email,
+          subject: welcomeEmail.subject,
+          html: welcomeEmail.html,
+          text: welcomeEmail.text,
+        }),
+        sendEmail({
+          to: getSupportNotificationEmail(),
+          subject: supportEmail.subject,
+          html: supportEmail.html,
+          text: supportEmail.text,
+        }),
+      ]);
+    } catch (error) {
+      console.error('Failed to send registration emails', error);
+      warning = 'Account created, but email notification could not be delivered.';
+    }
+  }
+
+  return NextResponse.json({ redirectTo: '/help', warning }, { status: 201 });
 }

@@ -5,6 +5,8 @@ node_modules
 *.db-journal
 prisma/data/*
 !prisma/data/tickets.rtf
+!prisma/data/staff.json
+!prisma/data/users.json
 prisma/dev.db
 .env*
 !.env.example

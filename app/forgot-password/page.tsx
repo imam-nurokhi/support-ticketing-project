@@ -52,7 +52,7 @@ export default function ForgotPasswordPage() {
           </Link>
           <h1 className="text-2xl font-bold text-white">Forgot your password?</h1>
           <p className="mt-2 text-sm text-slate-400">
-            Enter your email and we&apos;ll generate a reset link for you.
+            Enter your email and we&apos;ll send a reset link to your inbox.
           </p>
         </div>
 
@@ -64,13 +64,13 @@ export default function ForgotPasswordPage() {
               </div>
               <h2 className="text-lg font-semibold text-white mb-2">Check your reset link</h2>
               <p className="text-sm text-slate-400 mb-6">
-                If <span className="text-slate-200 font-medium">{email}</span> is registered, a reset link has been generated.
+                If <span className="text-slate-200 font-medium">{email}</span> is registered, a reset link has been sent.
               </p>
 
               {resetUrl && (
                 <div className="bg-violet-950/60 border border-violet-800/50 rounded-2xl p-4 mb-6 text-left">
                   <div className="text-xs text-violet-400 font-medium uppercase tracking-wide mb-2">
-                    🔗 Demo Reset Link (no email setup)
+                    Development Preview Link
                   </div>
                   <Link
                     href={resetUrl}
@@ -133,7 +133,7 @@ export default function ForgotPasswordPage() {
                 ) : (
                   <Mail className="h-4 w-4" />
                 )}
-                {pending ? 'Generating link...' : 'Send Reset Link'}
+                {pending ? 'Sending email...' : 'Send Reset Link'}
               </button>
             </form>
           )}

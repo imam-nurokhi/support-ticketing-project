@@ -21,6 +21,51 @@ function createTransporter() {
 const FROM_ADDRESS = process.env.SMTP_FROM ?? 'Resolv Support <no-reply@nexoratech.co>';
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
 
+export function isMailConfigured() {
+  const host = process.env.SMTP_HOST;
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
+  return Boolean(host && user && pass);
+}
+
+export function getAppBaseUrl() {
+  return (process.env.APP_BASE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://support.nexoratech.co').replace(/\/$/, '');
+}
+
+export function getSupportNotificationEmail() {
+  return (
+    process.env.SUPPORT_NOTIFICATION_EMAIL?.trim() ||
+    process.env.SMTP_FROM_EMAIL?.trim() ||
+    process.env.SMTP_USER?.trim() ||
+    ''
+  );
+}
+
+interface SendEmailOptions {
+  to: string | string[];
+  subject: string;
+  html: string;
+  text?: string;
+}
+
+async function _dispatch(to: string, subject: string, html: string) {
+  const transporter = createTransporter();
+  if (!transporter) {
+    console.log(`[Email] SMTP not configured — skipping email to ${to}: ${subject}`);
+    return;
+  }
+  try {
+    await transporter.sendMail({ from: FROM_ADDRESS, to, subject, html });
+  } catch (err) {
+    console.error('[Email] Failed to send email:', err);
+  }
+}
+
+export async function sendEmail({ to, subject, html }: SendEmailOptions) {
+  const recipients = Array.isArray(to) ? to.join(', ') : to;
+  await _dispatch(recipients, subject, html);
+}
+
 function baseTemplate(content: string) {
   return `<!DOCTYPE html>
 <html lang="en">
@@ -83,19 +128,6 @@ function statusLabel(status: string) {
   return status.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-async function sendEmail(to: string, subject: string, html: string) {
-  const transporter = createTransporter();
-  if (!transporter) {
-    console.log(`[Email] SMTP not configured — skipping email to ${to}: ${subject}`);
-    return;
-  }
-  try {
-    await transporter.sendMail({ from: FROM_ADDRESS, to, subject, html });
-  } catch (err) {
-    console.error('[Email] Failed to send email:', err);
-  }
-}
-
 export interface TicketEmailData {
   ticketId: string;
   ticketDbId: string;
@@ -134,7 +166,7 @@ export async function sendTicketCreatedEmails(data: TicketEmailData) {
     <p style="font-size:13px;color:#94a3b8;">Average response time is within 1 business day. We'll notify you by email when there's an update.</p>
   `);
 
-  await sendEmail(data.authorEmail, `[${data.ticketId}] Ticket Received: ${data.title}`, customerHtml);
+  await _dispatch(data.authorEmail, `[${data.ticketId}] Ticket Received: ${data.title}`, customerHtml);
 
   // Email to assignee if assigned
   if (data.assigneeEmail && data.assigneeName) {
@@ -155,7 +187,7 @@ export async function sendTicketCreatedEmails(data: TicketEmailData) {
       </div>
       <a href="${agentUrl}" class="cta-button">Open Ticket in Agent Portal →</a>
     `);
-    await sendEmail(data.assigneeEmail, `[${data.ticketId}] New Ticket Assigned: ${data.title}`, agentHtml);
+    await _dispatch(data.assigneeEmail, `[${data.ticketId}] New Ticket Assigned: ${data.title}`, agentHtml);
   }
 }
 
@@ -199,7 +231,7 @@ export async function sendCommentEmails(data: CommentEmailData) {
       <a href="${customerUrl}" class="cta-button">View & Reply →</a>
       <p style="font-size:13px;color:#94a3b8;">You can reply directly from the support portal. Please do not reply to this email.</p>
     `);
-    await sendEmail(data.customerEmail, `[${data.ticketId}] Reply from Support: ${data.title}`, customerHtml);
+    await _dispatch(data.customerEmail, `[${data.ticketId}] Reply from Support: ${data.title}`, customerHtml);
   } else {
     // Customer replied → notify assignee if set
     if (data.assigneeEmail && data.assigneeName) {
@@ -214,7 +246,7 @@ export async function sendCommentEmails(data: CommentEmailData) {
         ${attachmentNote}
         <a href="${agentUrl}" class="cta-button">Open Ticket →</a>
       `);
-      await sendEmail(data.assigneeEmail, `[${data.ticketId}] Customer Reply: ${data.title}`, agentHtml);
+      await _dispatch(data.assigneeEmail, `[${data.ticketId}] Customer Reply: ${data.title}`, agentHtml);
     }
   }
 }
@@ -257,7 +289,7 @@ export async function sendStatusChangedEmails(data: StatusChangedEmailData) {
     }
     <a href="${customerUrl}" class="cta-button">View Ticket →</a>
   `);
-  await sendEmail(data.customerEmail, `[${data.ticketId}] Status Updated: ${newLabel} — ${data.title}`, customerHtml);
+  await _dispatch(data.customerEmail, `[${data.ticketId}] Status Updated: ${newLabel} — ${data.title}`, customerHtml);
 
   // Notify assignee too if they didn't make the change
   if (data.assigneeEmail && data.assigneeName) {
@@ -274,7 +306,7 @@ export async function sendStatusChangedEmails(data: StatusChangedEmailData) {
       </div>
       <a href="${agentUrl}" class="cta-button">Open Ticket →</a>
     `);
-    await sendEmail(data.assigneeEmail, `[${data.ticketId}] Status → ${newLabel}: ${data.title}`, agentHtml);
+    await _dispatch(data.assigneeEmail, `[${data.ticketId}] Status → ${newLabel}: ${data.title}`, agentHtml);
   }
 }
 
@@ -303,5 +335,5 @@ export async function sendAssignedEmail(data: AssignedEmailData) {
     </div>
     <a href="${agentUrl}" class="cta-button">Open Ticket →</a>
   `);
-  await sendEmail(data.assigneeEmail, `[${data.ticketId}] Ticket Assigned to You: ${data.title}`, agentHtml);
+  await _dispatch(data.assigneeEmail, `[${data.ticketId}] Ticket Assigned to You: ${data.title}`, agentHtml);
 }

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createHash, randomBytes } from 'node:crypto';
 import { db } from '@/lib/db';
+import { buildPasswordResetEmail } from '@/lib/email-templates';
+import { getAppBaseUrl, isMailConfigured, sendEmail } from '@/lib/email';
 
 const TOKEN_DURATION_MS = 1000 * 60 * 60; // 1 hour
 
@@ -26,7 +28,7 @@ export async function POST(request: NextRequest) {
 
   // Always return success to prevent email enumeration
   if (!user) {
-    return NextResponse.json({ message: 'If this email is registered, a reset link will appear below.' });
+    return NextResponse.json({ message: 'If this email is registered, a reset link has been sent.' });
   }
 
   // Invalidate previous tokens for this user
@@ -45,8 +47,37 @@ export async function POST(request: NextRequest) {
     },
   });
 
-  // In production this would be emailed. For demo, return the reset link directly.
-  const resetUrl = `/reset-password?token=${token}`;
+  const resetUrl = `${getAppBaseUrl()}/reset-password?token=${token}`;
+  const expiresLabel = expiresAt.toLocaleString('en-US', { timeZone: 'UTC', hour12: false }) + ' UTC';
+
+  if (isMailConfigured()) {
+    try {
+      const email = buildPasswordResetEmail({
+        name: user.name,
+        resetUrl,
+        expiresAt: expiresLabel,
+      });
+
+      await sendEmail({
+        to: user.email,
+        subject: email.subject,
+        html: email.html,
+        text: email.text,
+      });
+
+      return NextResponse.json({
+        message: 'If this email is registered, a reset link has been sent.',
+        expiresAt: expiresAt.toISOString(),
+      });
+    } catch (error) {
+      console.error('Failed to send password reset email', error);
+      return NextResponse.json({
+        message: 'Reset link generated, but email delivery failed.',
+        expiresAt: expiresAt.toISOString(),
+        deliveryFailed: true,
+      });
+    }
+  }
 
   return NextResponse.json({
     message: 'Reset link generated successfully.',
