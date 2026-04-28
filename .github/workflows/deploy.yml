@@ -66,8 +66,19 @@ jobs:
             fi
 
             if [ -z "$REPO_DIR" ]; then
-              echo "Deployment path not found. Set DEPLOY_PATH secret or place the repo in a standard location."
-              exit 1
+              REPO_DIR="$(find "$HOME" /opt /var/www /srv -maxdepth 5 \( -name docker-compose.yml -o -name compose.yml \) 2>/dev/null | while read -r compose_file; do
+                if grep -q 'support.nexoratech.co' "$compose_file"; then
+                  dirname "$compose_file"
+                  break
+                fi
+              done)"
+            fi
+
+            if [ -z "$REPO_DIR" ]; then
+              REPO_DIR="$HOME/$REPO_NAME"
+              if [ ! -d "$REPO_DIR/.git" ]; then
+                git clone "https://github.com/${{ github.repository }}.git" "$REPO_DIR"
+              fi
             fi
 
             cd "$REPO_DIR"
