@@ -89,3 +89,17 @@ jobs:
             git reset --hard origin/main
             git clean -fd
             docker compose up -d --build
+            sleep 10
+
+            if ! docker ps --filter name='^/support$' --format '{{.Names}} {{.Status}}' | grep -q '^support Up'; then
+              docker ps -a --filter name='^/support$'
+              docker logs --tail 100 support || true
+              exit 1
+            fi
+
+            if ! curl -fsS -H 'Host: support.nexoratech.co' http://127.0.0.1/login >/dev/null; then
+              docker inspect support --format 'labels={{json .Config.Labels}}'
+              docker inspect support --format 'networks={{json .NetworkSettings.Networks}}'
+              docker logs --tail 100 support || true
+              exit 1
+            fi
