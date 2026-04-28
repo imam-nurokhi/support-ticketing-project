@@ -69,7 +69,7 @@ NODE
 
 # Run Prisma migrations/push
 echo "📦 Running database setup..."
-node ./node_modules/prisma/build/index.js db push --skip-generate
+node ./node_modules/prisma/build/index.js db push --accept-data-loss --skip-generate
 
 # Seed only if database is empty (check user count)
 USER_COUNT=$(node -e "
