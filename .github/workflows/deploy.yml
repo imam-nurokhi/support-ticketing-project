@@ -38,12 +38,40 @@ jobs:
       - name: Deploy to server via SSH
         uses: appleboy/ssh-action@v1.2.2
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
+          host: ${{ secrets.VPS_HOST || secrets.SSH_HOST }}
+          username: ${{ secrets.VPS_USER || secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          password: ${{ secrets.SSH_PASSWORD }}
-          port: ${{ secrets.SSH_PORT || 22 }}
+          password: ${{ secrets.VPS_PASSWORD || secrets.SSH_PASSWORD }}
+          port: ${{ secrets.VPS_PORT || secrets.SSH_PORT || 22 }}
           script: |
-            cd ${{ secrets.DEPLOY_PATH }}
-            git pull origin main
+            REPO_NAME="${{ github.event.repository.name }}"
+            REPO_DIR="${{ secrets.DEPLOY_PATH }}"
+
+            if [ -z "$REPO_DIR" ]; then
+              for candidate in "$HOME/$REPO_NAME" "/opt/$REPO_NAME" "/var/www/$REPO_NAME" "/srv/$REPO_NAME"; do
+                if [ -d "$candidate/.git" ]; then
+                  REPO_DIR="$candidate"
+                  break
+                fi
+              done
+            fi
+
+            if [ -z "$REPO_DIR" ]; then
+              REPO_DIR="$(find "$HOME" /opt /var/www /srv -maxdepth 4 -type d -name "$REPO_NAME" 2>/dev/null | while read -r dir; do
+                if [ -d "$dir/.git" ] && [ -f "$dir/docker-compose.yml" ]; then
+                  echo "$dir"
+                  break
+                fi
+              done)"
+            fi
+
+            if [ -z "$REPO_DIR" ]; then
+              echo "Deployment path not found. Set DEPLOY_PATH secret or place the repo in a standard location."
+              exit 1
+            fi
+
+            cd "$REPO_DIR"
+            git fetch origin main
+            git checkout main
+            git pull --ff-only origin main
             docker compose up -d --build
