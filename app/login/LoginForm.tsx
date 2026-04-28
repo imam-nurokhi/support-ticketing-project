@@ -3,18 +3,13 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { ShieldCheck, UserCog, UserRound, Sparkles } from 'lucide-react';
-
-const demoAccounts = [
-  { label: 'Admin',    email: 'admin@nexora.local',    password: 'Admin123!',    icon: UserCog    },
-  { label: 'Agent',    email: 'agent@nexora.local',    password: 'Agent123!',    icon: ShieldCheck },
-  { label: 'Customer', email: 'customer@nexora.local', password: 'Customer123!', icon: UserRound   },
-];
+import Link from 'next/link';
+import { Sparkles } from 'lucide-react';
 
 export default function LoginForm({ nextPath }: { nextPath?: string }) {
   const router = useRouter();
-  const [email,    setEmail]    = useState('admin@nexora.local');
-  const [password, setPassword] = useState('Admin123!');
+  const [email,    setEmail]    = useState('');
+  const [password, setPassword] = useState('');
   const [error,    setError]    = useState('');
   const [pending,  setPending]  = useState(false);
 
@@ -81,27 +76,9 @@ export default function LoginForm({ nextPath }: { nextPath?: string }) {
             Enterprise-grade helpdesk
           </div>
 
-          {/* Demo account quick-select cards */}
-          <div className="mt-12 grid gap-3">
-            {demoAccounts.map((account) => (
-              <button
-                key={account.email}
-                type="button"
-                onClick={() => {
-                  setEmail(account.email);
-                  setPassword(account.password);
-                }}
-                className="flex items-center gap-4 rounded-2xl border border-slate-700/60 bg-slate-800/60 p-4 text-left backdrop-blur-sm hover:border-violet-500/60 hover:bg-slate-800/80"
-              >
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-violet-900/60">
-                  <account.icon className="h-4 w-4 text-violet-400" />
-                </div>
-                <div>
-                  <div className="text-sm font-medium text-white">{account.label}</div>
-                  <div className="mt-0.5 text-xs text-slate-400">{account.email}</div>
-                </div>
-              </button>
-            ))}
+          <div className="mt-12 rounded-2xl border border-slate-800/70 bg-slate-900/40 p-5 text-sm text-slate-300 backdrop-blur-sm">
+            Use your registered work email and password to sign in. If you need access or a password reset,
+            please contact the support administrator.
           </div>
         </div>
 
@@ -128,25 +105,6 @@ export default function LoginForm({ nextPath }: { nextPath?: string }) {
             <p className="mt-1.5 text-sm text-slate-500">
               Sign in to your account to continue.
             </p>
-          </div>
-
-          {/* Mobile demo account cards (hidden on lg — left panel handles them) */}
-          <div className="mb-6 grid gap-2 sm:grid-cols-3 lg:hidden">
-            {demoAccounts.map((account) => (
-              <button
-                key={account.email}
-                type="button"
-                onClick={() => {
-                  setEmail(account.email);
-                  setPassword(account.password);
-                }}
-                className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-left hover:border-violet-300 hover:bg-violet-50"
-              >
-                <account.icon className="mb-1.5 h-4 w-4 text-violet-500" />
-                <div className="text-xs font-medium text-slate-800">{account.label}</div>
-                <div className="mt-0.5 truncate text-xs text-slate-400">{account.email}</div>
-              </button>
-            ))}
           </div>
 
           {/* ── The sign-in form ── */}
@@ -265,9 +223,9 @@ export default function LoginForm({ nextPath }: { nextPath?: string }) {
           {/* Register link */}
           <p className="mt-4 text-center text-sm text-slate-500">
             Don&apos;t have an account?{' '}
-            <a href="/register" className="font-medium text-blue-600 hover:text-blue-700">
-              Create one here
-            </a>
+            <Link href="/register" className="font-medium text-blue-600 hover:text-blue-700">
+              Sign up
+            </Link>
           </p>
         </div>
       </div>
