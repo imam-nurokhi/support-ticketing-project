@@ -85,6 +85,7 @@ jobs:
             cd "$REPO_DIR"
             git config --global --add safe.directory "$REPO_DIR"
             git fetch origin main
-            git checkout main
-            git pull --ff-only origin main
+            git checkout -f main
+            git reset --hard origin/main
+            git clean -fd
             docker compose up -d --build
